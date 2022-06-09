@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Presensi</string>
+
+    <string name="jenis_kelamin">Jenis Kelamin</string>
+    <string name="masukkan_username">Masukkan Username</string>
+    <string name="masukkan_password">Masukkan Password</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="masuk">Masuk</string>
+    <string name="failed_login">Username dan password tidak cocok</string>
+
+    <string name="keluar">Keluar</string>
+    <string name="history">Riwayat Absensi</string>
+    <string name="absen_sekarang">Absen Sekarang</string>
+    <string name="profil">Profil</string>
+    <string name="izin_kerja">Pengajuan Izin Kerja</string>
+    <string name="sakit">Pengajuan Sakit</string>
+    <string name="dari_tanggal">Dari Tanggal</string>
+    <string name="_2022_01_01">2022-01-01</string>
+    <string name="sampai_tanggal">Sampai Tanggal</string>
+    <string name="filter">Filter</string>
+    <string name="masukkan_nama">Masukkan Nama</string>
+    <string name="masukkan_nip">Masukkan NIP</string>
+    <string name="masukkan_golongan">Masukkan Golongan</string>
+    <string name="masukkan_instansi">Masukkan Instansi</string>
+    <string name="masukkan_jabatan">Masukkan Jabatan</string>
+    <string name="masukkan_atasan">Masukkan Atasan</string>
+    <string name="masukkan_nama_atasan">Masukkan Nama Atasan</string>
+    <string name="masukkan_tanggal_lahir">Masukkan Tanggal Lahir</string>
+    <string name="masukkan_ponsel">Masukkan Ponsel</string>
+    <string name="ponsel">Ponsel</string>
+    <string name="tanggal_lahir">Tanggal Lahir</string>
+    <string name="nama_atasan">Nama Atasan</string>
+    <string name="atasan">Atasan</string>
+    <string name="jabatan">Jabatan</string>
+    <string name="instansi">Instansi</string>
+    <string name="golongan">Golongan</string>
+    <string name="nip">NIP</string>
+    <string name="nama">Nama</string>
+    <string name="simpan">Simpan</string>
+</resources>

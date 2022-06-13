@@ -7,6 +7,8 @@
     tools:context=".activity.ProfileActivity">
 
     <LinearLayout
+        android:id="@+id/container"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -188,6 +190,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
+import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityLoginBinding
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
@@ -53,18 +54,18 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
-
                     if (response.body() == null) {
                         binding.cardError.setVisibility(View.VISIBLE)
                         binding.tvError.setText("Username / Password tidak sesuai!")
                     } else {
                         var res = Gson().toJsonTree(response.body()).asJsonObject
                         val editor = loginData.edit()
-                        editor.putString("jwt", "Bearer "+res.get("data").asString)
+                        editor.putString("token", "Bearer "+res.get("data").asString)
                         editor.apply()
                         binding.cardError.setVisibility(View.GONE)
                         val intent = Intent(applicationContext, SplashScreenActivity::class.java)
                         startActivity(intent)
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                         finish()
                     }
                     binding?.btnLogin.setText("Masuk")

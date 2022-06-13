@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    const val BASE_URL = "http://sipukat.tanjungbalaikota.go.id/app/api/v1/"
+    const val BASE_URL = "https://api-presence.z-techno.com/api/"
     private var retrofit: Retrofit? = null
     val client: Retrofit?
         get() {

@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import com.htd.presensi.R
 import com.htd.presensi.activity.LoginActivity
 import com.htd.presensi.activity.MainActivity
 import com.htd.presensi.databinding.ActivitySplashScreenBinding
@@ -34,13 +35,15 @@ class SplashScreenActivity : AppCompatActivity() {
                 alertDialog.setCancelable(false)
                 alertDialog.show()
             } else {
-                if (!userLoggedIn.contains("jwt")) {
+                if (!userLoggedIn.contains("token")) {
                     val intent = Intent(this@SplashScreenActivity, LoginActivity::class.java)
                     startActivity(intent)
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     finish()
                 } else {
                     val intent = Intent(this@SplashScreenActivity, MainActivity::class.java)
                     startActivity(intent)
+                    overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
                     finish()
                 }
             }

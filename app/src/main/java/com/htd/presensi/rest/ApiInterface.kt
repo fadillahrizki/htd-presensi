@@ -17,7 +17,7 @@ interface ApiInterface {
     fun profile(@Header("authorization") token : String,@Path("id") id:String): Call<Any>
 
     @GET("employees/{id}/presences")
-    fun getPresences(@Header("authorization") token : String,@Path("id") id: String,@Query("type") type:String, @Query("from_date") fromDate:String, @Query("to_date") toDate: String): Call<Any>
+    fun getPresences(@Header("authorization") token : String,@Path("id") id: String,@Query("type") type:String,@Query("status") status:String, @Query("from_date") fromDate:String, @Query("to_date") toDate: String): Call<Any>
 
     @Multipart
     @POST("employees/{id}/presences")
@@ -25,6 +25,9 @@ interface ApiInterface {
         @Header("authorization") token : String,
         @Path("id") id:String,
         @Part("type") type: RequestBody,
-        @Part attachment : MultipartBody.Part
+        @Part attachment : MultipartBody.Part,
+        @Part("lat") lat: RequestBody,
+        @Part("lng") lng: RequestBody,
+        @Part("in_location") inLocation: RequestBody
     ): Call<Any>
 }

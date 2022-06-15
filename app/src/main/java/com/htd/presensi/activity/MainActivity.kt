@@ -1,42 +1,65 @@
 package com.htd.presensi.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.AssetFileDescriptor
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.ImageDecoder
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.htd.presensi.BuildConfig
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityMainBinding
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
+import com.htd.presensi.util.CurrencyFormat.format
 import com.htd.presensi.util.Loading
+import com.htd.presensi.util.LocationDistance
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import org.json.JSONTokener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.*
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener {
 
     lateinit var binding: ActivityMainBinding
     lateinit var mApiInterface: ApiInterface
@@ -53,6 +76,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var photoUri: Uri
 
     lateinit var loading: Loading
+    var currentLocation: Location? = null
+
+    lateinit var places : JSONArray
+
+    lateinit var alertDialogBuilder : AlertDialog.Builder
+    var inLocation = true
+
+    var radius: Double? = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +103,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         loading = Loading(this)
+
+        places = JSONTokener(userLoggedIn.getString("places",null)).nextValue() as JSONArray
+
+        alertDialogBuilder = AlertDialog.Builder(this)
+
+        radius = userLoggedIn.getString("radius",null)?.toDouble()
+
+        if(radius == null){
+            binding.absen.visibility = View.GONE
+        }
+
     }
 
     fun observe(){
@@ -90,15 +132,41 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         binding.logout.setOnClickListener(this)
     }
 
+    override fun onLocationChanged(location: Location) {
+        currentLocation = location
+    }
+
     fun getLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_FINE_LOCATION)
         }else{
-            fusedLocationClient.lastLocation.addOnSuccessListener { location : Location? ->
-                Toast.makeText(this,"Long: ${location?.longitude}\nLat: ${location?.latitude}",Toast.LENGTH_LONG).show()
+
+            fusedLocationClient.lastLocation.addOnSuccessListener {
+                currentLocation=it
+                    if(checkLocation()) {
+                        takePicture()
+                    }else{
+                        inLocation = false
+                        alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
+                        alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
+                        alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
+                            takePicture()
+    //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
+                        }
+                        alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
+    //                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
+                        }
+                        alertDialogBuilder.show()
+                    }
+
+            }
+
+            fusedLocationClient.lastLocation.addOnFailureListener {
+                Toast.makeText(applicationContext,"Gagal mendapatkan lokasi",Toast.LENGTH_LONG).show()
             }
         }
     }
+
 
     private fun takePicture() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -134,16 +202,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(view: View?) {
         when(view?.id){
             binding.absen.id->{
-                takePicture()
-//                getLocation()
+                getLocation()
             }
             binding.profil.id->{
                 startActivity(Intent(applicationContext, ProfileActivity::class.java))
                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
+                loading.dismiss()
             }
             binding.history.id->{
                 startActivity(Intent(applicationContext, HistoryActivity::class.java))
                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
+                loading.dismiss()
             }
             binding.izinKerja.id->{
                 val intent = Intent()
@@ -163,6 +232,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 userLoggedIn.edit().clear().apply()
                 startActivity(Intent(applicationContext, SplashScreenActivity::class.java))
                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
+                loading.dismiss()
                 finish()
             }
         }
@@ -184,14 +254,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            binding.image.setImageURI(photoUri)
-            presences("hadir", photoUri)
+            var uri = resizeImage(photoUri)
+            presences("hadir", uri)
         }
 
         if(requestCode == REQUEST_FILE_IZIN && resultCode == RESULT_OK) {
             if(data !=null){
                 var selectedfile: Uri = data.data!!
-                binding.image.setImageURI(selectedfile)
                 presences("izin", uriFile = selectedfile)
             }
         }
@@ -199,7 +268,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if(requestCode == REQUEST_FILE_SAKIT && resultCode == RESULT_OK) {
             if(data !=null){
                 var selectedfile: Uri = data.data!!
-                binding.image.setImageURI(selectedfile)
                 presences("sakit", selectedfile)
             }
         }
@@ -210,16 +278,73 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         return File.createTempFile(fileName, ".jpg", storageDirectory)
     }
 
-    fun presences(type:String,uriFile: Uri){
+    fun checkLocation():Boolean{
+
+        for (i in 0 until places.length()) {
+
+            var place = places.getJSONObject(i)
+            var newLoc = Location("")
+            newLoc.latitude = place.getString("lat").toDouble()
+            newLoc.longitude = place.getString("lng").toDouble()
+            Log.d(packageName,newLoc.latitude.toString())
+            var distance = LocationDistance.betweenCoordinates(currentLocation!!,newLoc)
+
+            if(distance <= radius!!){
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private fun resizeImage(_uri: Uri) : Uri {
+        var _bitmap = MediaStore.Images.Media.getBitmap(contentResolver, _uri)
+        var afd = contentResolver.openAssetFileDescriptor(_uri, "r")
+        var fileSize: Long = afd!!.length
+        afd.close()
+        Log.d(packageName, "SIZE ORIGINAL: $fileSize")
+
+        var bitmap = _bitmap
+        Log.d(packageName, "SIZE BITMAP : ${bitmap.width}")
+        if (bitmap.width > 100) {
+            val divider = bitmap.width / 100
+            val width = 100
+            val height = bitmap.height / divider
+            bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false)
+        }
+
+        Log.d(packageName, "SIZE NEW BITMAP : ${bitmap.width}")
+
+        val imageOut = contentResolver.openOutputStream(_uri)
+        try {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, imageOut)
+            Log.d(packageName, "SIZE NEW BITMAP HERE : ${bitmap.width}")
+        } finally {
+            imageOut!!.close()
+        }
+
+        afd = contentResolver.openAssetFileDescriptor(_uri, "r")
+        fileSize = afd!!.length
+        afd.close()
+        Log.d(packageName, "SIZE RESIZED : $fileSize")
+        return _uri
+    }
+
+    fun presences(type:String, uriFile: Uri){
         loading.show()
 
         var inputStream = contentResolver.openInputStream(uriFile)
+
         var imageData = inputStream?.buffered()?.use { it.readBytes() }
         var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), imageData)
         var attachment = MultipartBody.Part.createFormData("attachment",FILE_NAME, requestFile)
-        val typeBody: RequestBody = RequestBody.create(MediaType.parse("multipart/form-data"), type)
 
-        mApiInterface.presences(userLoggedIn.getString("token",null)!!,"1",typeBody, attachment).enqueue(object : Callback<Any> {
+        val typeBody: RequestBody = RequestBody.create(MediaType.parse("multipart/form-data"), type)
+        val lngBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(currentLocation != null) currentLocation?.longitude.toString() else "")
+        val latBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(currentLocation != null) currentLocation?.latitude.toString() else "")
+        val inLocationBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(inLocation) inLocation.toString() else "")
+
+        mApiInterface.presences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,typeBody,attachment,lngBody,latBody,inLocationBody).enqueue(object : Callback<Any> {
             override fun onResponse(
                 call: Call<Any>,
                 response: Response<Any>
@@ -246,5 +371,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 loading.hide()
             }
         })
+
     }
 }

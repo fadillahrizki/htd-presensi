@@ -83,7 +83,7 @@ class ProfileActivity : AppCompatActivity(){
 
     fun getData() {
         loading.show()
-        mApiInterface.profile(userLoggedIn.getString("token",null)!!,"1").enqueue(object : Callback<Any> {
+        mApiInterface.profile(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!).enqueue(object : Callback<Any> {
             override fun onResponse(
                 call: Call<Any>,
                 response: Response<Any>

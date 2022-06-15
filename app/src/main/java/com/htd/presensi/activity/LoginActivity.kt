@@ -1,7 +1,6 @@
 package com.htd.presensi.activity
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -9,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityLoginBinding
+import com.htd.presensi.models.User
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import retrofit2.Call
@@ -18,12 +18,10 @@ import retrofit2.Response
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var binding: ActivityLoginBinding
     lateinit var mApiInterface: ApiInterface
-    lateinit var tokenStored: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.getRoot())
-        tokenStored = getSharedPreferences("token_data", MODE_PRIVATE)
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         binding.btnLogin.setOnClickListener(this)
     }
@@ -54,14 +52,30 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
+                        Log.d(packageName,response.raw().toString())
                     if (response.body() == null) {
                         binding.cardError.setVisibility(View.VISIBLE)
                         binding.tvError.setText("Username / Password tidak sesuai!")
                     } else {
+
                         var res = Gson().toJsonTree(response.body()).asJsonObject
                         val editor = loginData.edit()
-                        editor.putString("token", "Bearer "+res.get("data").asString)
+                        val data = res.get("data").asJsonObject
+                        val userData = data.get("user").asJsonObject
+
+                        editor.putString("id", userData.get("id").asString)
+                        editor.putString("name", userData.get("name").asString)
+                        editor.putString("email", userData.get("email").asString)
+                        editor.putString("password", password)
+                        editor.putString("role", userData.get("role").asString)
+                        editor.putString("radius", userData.get("radius")?.asString)
+                        editor.putString("employee_id", userData.get("employee_id").asString)
+                        editor.putString("token", data.get("token").asString)
+
+                        editor.putString("places",userData.getAsJsonArray("places").toString())
+
                         editor.apply()
+
                         binding.cardError.setVisibility(View.GONE)
                         val intent = Intent(applicationContext, SplashScreenActivity::class.java)
                         startActivity(intent)

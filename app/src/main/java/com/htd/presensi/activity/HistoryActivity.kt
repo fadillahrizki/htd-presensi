@@ -38,11 +38,11 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
     var historyAdapter: HistoryAdapter = HistoryAdapter()
     var mainViewModel: MainViewModel = MainViewModel()
 
-    var jenisAbsensi = arrayOf("Hadir","Izin","Sakit")
-    var status = arrayOf("Diterima","Ditolak")
+    var jenisAbsensi = arrayOf("Semua","Hadir","Izin","Sakit")
+    var status = arrayOf("Semua","Diterima","Ditolak","Diajukan")
 
-    var selectedJenisAbsensi = "Hadir"
-    var selectedStatus = "Diterima"
+    var selectedJenisAbsensi = "Semua"
+    var selectedStatus = "Semua"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,7 +111,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
 
     fun getData(start: String, end: String) {
         loading.show()
-        mApiInterface.getPresences(userLoggedIn.getString("token",null)!!,"1",selectedJenisAbsensi,start,end).enqueue(object :
+        mApiInterface.getPresences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,if(selectedJenisAbsensi == "Semua") "" else selectedJenisAbsensi,if(selectedStatus == "Semua") "" else selectedStatus,start,end).enqueue(object :
             Callback<Any> {
             override fun onResponse(
                 call: Call<Any>,

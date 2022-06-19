@@ -9,4 +9,5 @@ import com.htd.presensi.models.Profile
 class MainViewModel : ViewModel() {
     var histories : MutableLiveData<ArrayList<Presence>> = MutableLiveData()
     var profile : MutableLiveData<Profile> = MutableLiveData()
+    var historyDetail : MutableLiveData<Presence> = MutableLiveData()
 }

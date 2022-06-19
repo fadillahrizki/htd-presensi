@@ -1,5 +1,7 @@
 package com.htd.presensi.adapter
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,9 +10,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.htd.presensi.R
+import com.htd.presensi.activity.HistoryDetailActivity
+import com.htd.presensi.activity.ProfileActivity
 import com.htd.presensi.models.Presence
 
-class HistoryAdapter : RecyclerView.Adapter<HistoryAdapter.MyViewHolder>() {
+class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter.MyViewHolder>() {
     var data: ArrayList<Presence> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder = MyViewHolder(
@@ -24,7 +28,9 @@ class HistoryAdapter : RecyclerView.Adapter<HistoryAdapter.MyViewHolder>() {
         holder.tvTime.text = dt.time
 
         holder.itemView.setOnClickListener {
-            Log.d("TEST","ini test")
+            var intent = Intent(context, HistoryDetailActivity::class.java)
+            intent.putExtra("employee_presence_id",dt.id)
+            context.startActivity(intent)
         }
     }
 

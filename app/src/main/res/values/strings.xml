@@ -39,4 +39,8 @@
     <string name="nama">Nama</string>
     <string name="simpan">Simpan</string>
     <string name="absen_luar_lokasi">Absen Luar Lokasi</string>
+    <string name="lampiran">Lampiran</string>
+    <string name="tipe">Tipe</string>
+    <string name="status">Status</string>
+    <string name="tanggal_absen">Tanggal Absen</string>
 </resources>

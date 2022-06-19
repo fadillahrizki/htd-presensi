@@ -35,7 +35,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
 
     lateinit var loading:Loading
 
-    var historyAdapter: HistoryAdapter = HistoryAdapter()
+    lateinit var historyAdapter: HistoryAdapter
     var mainViewModel: MainViewModel = MainViewModel()
 
     var jenisAbsensi = arrayOf("Semua","Hadir","Izin","Sakit")
@@ -63,6 +63,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
 
+        historyAdapter = HistoryAdapter(this)
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
 
         supportActionBar?.title = "Riwayat Absensi"
@@ -124,13 +125,18 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                 val presences = data.getAsJsonArray("presences")
 
                 var arrPresences = ArrayList<Presence>()
-                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
                 for(p in presences){
                     val obj = p.asJsonObject
                     val date = sdf.parse(obj.get("created_at").asString)
 
                     var presence = Presence()
+                    presence.id = obj.get("id").asString
+                    presence.attachment_url = obj.get("attachment_url")?.asString
+                    presence.pic_url = obj.get("pic_url")?.asString
+                    presence.lat = obj.get("lat")?.asString
+                    presence.lng = obj.get("lng")?.asString
                     presence.type = obj.get("type").asString
                     presence.status = obj.get("status").asString
                     presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)

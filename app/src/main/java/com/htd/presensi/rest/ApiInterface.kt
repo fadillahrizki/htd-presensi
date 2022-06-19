@@ -28,6 +28,12 @@ interface ApiInterface {
         @Part attachment : MultipartBody.Part,
         @Part("lat") lat: RequestBody,
         @Part("lng") lng: RequestBody,
-        @Part("in_location") inLocation: RequestBody
+        @Part("in_location") inLocation: RequestBody,
+        @Part pic_url : MultipartBody.Part,
     ): Call<Any>
+
+
+    @GET("employees/{id}/presences/{employee_precence_id}")
+    fun getDetailPresence(@Header("authorization") token : String,@Path("id") id: String,@Path("employee_precence_id") employee_precence_id: String,): Call<Any>
+
 }

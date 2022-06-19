@@ -2,46 +2,40 @@ package com.htd.presensi.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.PendingIntent
-import android.content.Context
+import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.ImageDecoder
-import android.location.Address
-import android.location.Geocoder
 import android.location.Location
-import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.Looper
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.google.android.gms.location.*
+import androidx.core.net.toFile
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationListener
+import com.google.android.gms.location.LocationServices
 import com.htd.presensi.BuildConfig
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityMainBinding
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
-import com.htd.presensi.util.CurrencyFormat.format
 import com.htd.presensi.util.Loading
 import com.htd.presensi.util.LocationDistance
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -52,11 +46,7 @@ import org.json.JSONTokener
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener {
@@ -65,25 +55,24 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
     lateinit var mApiInterface: ApiInterface
     lateinit var userLoggedIn: SharedPreferences
     lateinit var fusedLocationClient: FusedLocationProviderClient
+    lateinit var photoFile: File
+    lateinit var photoUri: Uri
+    lateinit var loading: Loading
+    lateinit var places : JSONArray
+    lateinit var alertDialogBuilder : AlertDialog.Builder
+    lateinit var luarLokasiBtn : Button
+    lateinit var luarLokasiText : TextView
 
     val REQUEST_IMAGE_CAPTURE = 1
     val REQUEST_FILE_IZIN = 2
     val REQUEST_FILE_SAKIT = 3
+    val REQUEST_FILE_LUAR_LOKASI = 4
     val PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 100
     val FILE_NAME = "presence.jpg"
-
-    private lateinit var photoFile: File
-    private lateinit var photoUri: Uri
-
-    lateinit var loading: Loading
     var currentLocation: Location? = null
-
-    lateinit var places : JSONArray
-
-    lateinit var alertDialogBuilder : AlertDialog.Builder
     var inLocation = true
-
     var radius: Double? = 0.0
+    var luarLokasiUri : Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +83,36 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         listener()
     }
 
+    private fun showDialog() {
+        val dialog = Dialog(this)
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.out_location)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        luarLokasiBtn = dialog.findViewById(R.id.attachent_luar) as Button
+        luarLokasiText = dialog.findViewById(R.id.attachent_luar_text) as TextView
+        val yesBtn = dialog.findViewById(R.id.submit) as Button
+        val noBtn = dialog.findViewById(R.id.cancel) as Button
+
+        luarLokasiBtn.setOnClickListener {
+            val intent = Intent()
+                .setType("*/*")
+                .setAction(Intent.ACTION_GET_CONTENT)
+
+            startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_LUAR_LOKASI)
+        }
+
+        yesBtn.setOnClickListener {
+            takePicture()
+            dialog.dismiss()
+        }
+
+        noBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
+
+    }
+
     fun init(){
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.getRoot())
@@ -101,19 +120,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         userLoggedIn = getSharedPreferences("login_data", MODE_PRIVATE)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         loading = Loading(this)
-
         places = JSONTokener(userLoggedIn.getString("places",null)).nextValue() as JSONArray
-
         alertDialogBuilder = AlertDialog.Builder(this)
-
         radius = userLoggedIn.getString("radius",null)?.toDouble()
+
+//        if(userLoggedIn.getString("role",null) == "pegawai"){
+//            binding.absen.visibility = View.VISIBLE
+//            binding.history.visibility = View.VISIBLE
+//        }else if(userLoggedIn.getString("role",null) == "kasubagumum"){
+//            binding.izinKerja.visibility = View.VISIBLE
+//            binding.sakit.visibility = View.VISIBLE
+//        }
 
         if(radius == null){
             binding.absen.visibility = View.GONE
         }
-
     }
 
     fun observe(){
@@ -143,21 +165,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
             fusedLocationClient.lastLocation.addOnSuccessListener {
                 currentLocation=it
-                    if(checkLocation()) {
-                        takePicture()
-                    }else{
-                        inLocation = false
-                        alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
-                        alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
-                        alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
-                            takePicture()
-    //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
-                        }
-                        alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
-    //                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
-                        }
-                        alertDialogBuilder.show()
+                if(checkLocation()) {
+                    takePicture()
+                }else{
+                    inLocation = false
+                    alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
+                    alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
+                    alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
+                        showDialog()
+//                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
                     }
+                    alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
+//                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
+                    }
+                    alertDialogBuilder.show()
+                }
 
             }
 
@@ -271,6 +293,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
                 presences("sakit", selectedfile)
             }
         }
+
+        if(requestCode == REQUEST_FILE_LUAR_LOKASI && resultCode == RESULT_OK) {
+            if(data !=null){
+                luarLokasiUri = data.data!!
+                luarLokasiText.text  = getFileName(luarLokasiUri!!)
+                luarLokasiText.visibility = View.VISIBLE
+//                presences("sakit", selectedfile)
+            }
+        }
     }
 
     private fun getPhotoFile(fileName: String): File {
@@ -306,12 +337,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
         var bitmap = _bitmap
         Log.d(packageName, "SIZE BITMAP : ${bitmap.width}")
-        if (bitmap.width > 100) {
-            val divider = bitmap.width / 100
-            val width = 100
-            val height = bitmap.height / divider
-            bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false)
-        }
+//        if (bitmap.width > 100) {
+//            val divider = bitmap.width / 100
+//            val width = 100
+//            val height = bitmap.height / divider
+//            bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false)
+//        }
 
         Log.d(packageName, "SIZE NEW BITMAP : ${bitmap.width}")
 
@@ -330,26 +361,66 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         return _uri
     }
 
+    @SuppressLint("Range")
+    fun getFileName(uri: Uri): String? {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                }
+            } finally {
+                cursor!!.close()
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result!!.lastIndexOf('/')
+            if (cut != -1) {
+                result = result.substring(cut + 1)
+            }
+        }
+        return result
+    }
+
     fun presences(type:String, uriFile: Uri){
         loading.show()
 
-        var inputStream = contentResolver.openInputStream(uriFile)
+        var pic_url: MultipartBody.Part? = null
+        if(type == "hadir"){
+            var inputStream = contentResolver.openInputStream(uriFile)
 
-        var imageData = inputStream?.buffered()?.use { it.readBytes() }
-        var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), imageData)
-        var attachment = MultipartBody.Part.createFormData("attachment",FILE_NAME, requestFile)
+            var imageData = inputStream?.buffered()?.use { it.readBytes() }
+            var requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), imageData)
+            pic_url = MultipartBody.Part.createFormData("pic",FILE_NAME, requestFile)
+        }else{
+            pic_url = MultipartBody.Part.createFormData("pic","")
+        }
+
+        var attachment: MultipartBody.Part? = null
+        if(luarLokasiUri != null){
+            var isLuar = contentResolver.openInputStream(luarLokasiUri!!)
+
+            var imageDataLuar = isLuar?.buffered()?.use { it.readBytes() }
+            var requestFileLuar = RequestBody.create(MediaType.parse("multipart/form-data"), imageDataLuar)
+            attachment = MultipartBody.Part.createFormData("attachment",FILE_NAME, requestFileLuar)
+        }else{
+            attachment = MultipartBody.Part.createFormData("attachment","")
+        }
 
         val typeBody: RequestBody = RequestBody.create(MediaType.parse("multipart/form-data"), type)
         val lngBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(currentLocation != null) currentLocation?.longitude.toString() else "")
         val latBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(currentLocation != null) currentLocation?.latitude.toString() else "")
         val inLocationBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(inLocation) inLocation.toString() else "")
 
-        mApiInterface.presences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,typeBody,attachment,lngBody,latBody,inLocationBody).enqueue(object : Callback<Any> {
+        mApiInterface.presences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,typeBody,attachment,lngBody,latBody,inLocationBody,pic_url).enqueue(object : Callback<Any> {
             override fun onResponse(
                 call: Call<Any>,
                 response: Response<Any>
             ) {
                 if(response.code() == 200){
+                    Log.d(packageName, response.body().toString())
                     Toast.makeText(applicationContext,"Berhasil",Toast.LENGTH_LONG).show()
                 }else{
                     var jsonObject: JSONObject? = null

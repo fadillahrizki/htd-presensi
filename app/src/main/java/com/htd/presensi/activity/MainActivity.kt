@@ -184,7 +184,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
             }
 
             fusedLocationClient.lastLocation.addOnFailureListener {
-                Toast.makeText(applicationContext,"Gagal mendapatkan lokasi",Toast.LENGTH_LONG).show()
+                showAlert("Gagal mendapatkan lokasi")
+//                Toast.makeText(applicationContext,"Gagal mendapatkan lokasi",Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -202,6 +203,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         }
     }
 
+    fun showAlert(message:String){
+        var alert = AlertDialog.Builder(this)
+        alert.setMessage(message)
+        alert.setPositiveButton("Ok"){dialog,_->
+            dialog.dismiss()
+        }
+        alert.show()
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_ACCESS_FINE_LOCATION) {
@@ -213,7 +223,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this,"Permintaan Kamera Ditolak",Toast.LENGTH_LONG).show()
+//                Toast.makeText(this,"Permintaan Kamera Ditolak",Toast.LENGTH_LONG).show()
+                showAlert("Permintaan Kamera Ditolak")
             } else {
                 dispatchTakePictureIntent()
                 Toast.makeText(this,"Permintaan Kamera Diterima",Toast.LENGTH_LONG).show()
@@ -269,7 +280,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
         }catch(err:Exception){
-            Toast.makeText(this, "Tidak bisa buka kamera", Toast.LENGTH_SHORT).show()
+            showAlert("Tidak bisa buka kamera")
+//            Toast.makeText(this, "Tidak bisa buka kamera", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -427,7 +439,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
                     try {
                         jsonObject = JSONObject(response.errorBody().string())
                         val message: String = jsonObject.getString("message")
-                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
+                        showAlert(message)
+//                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
@@ -438,7 +451,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
             override fun onFailure(call: Call<Any>, t: Throwable) {
                 Log.d(packageName, t.toString())
-                Toast.makeText(applicationContext,"Ada Kesalahan Server",Toast.LENGTH_LONG).show()
+                showAlert("Ada Kesalahan Server")
+//                Toast.makeText(applicationContext,"Ada Kesalahan Server",Toast.LENGTH_LONG).show()
                 loading.hide()
             }
         })

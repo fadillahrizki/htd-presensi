@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.htd.presensi.R
@@ -11,6 +12,8 @@ import com.htd.presensi.databinding.ActivityLoginBinding
 import com.htd.presensi.models.User
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
+import org.json.JSONException
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -52,10 +55,20 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
-                        Log.d(packageName,response.raw().toString())
-                    if (response.body() == null) {
+                    Log.d(packageName,response.raw().toString())
+
+                    if (response.code() != 200) {
                         binding.cardError.setVisibility(View.VISIBLE)
                         binding.tvError.setText("Username / Password tidak sesuai!")
+
+                        var jsonObject: JSONObject? = null
+                        try {
+                            jsonObject = JSONObject(response.errorBody().string())
+                            val message: String = jsonObject.getString("message")
+                            Toast.makeText(applicationContext,message, Toast.LENGTH_LONG).show()
+                        } catch (e: JSONException) {
+                            e.printStackTrace()
+                        }
                     } else {
 
                         var res = Gson().toJsonTree(response.body()).asJsonObject
@@ -87,6 +100,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
                 override fun onFailure(call: Call<Any>, t: Throwable) {
                     Log.d(packageName, t.toString())
+                    Toast.makeText(applicationContext,"Ada Kesalahan Server",Toast.LENGTH_LONG).show()
                     binding.btnLogin.setText("Masuk")
                 }
             })

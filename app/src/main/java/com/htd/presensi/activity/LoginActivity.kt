@@ -1,7 +1,10 @@
 package com.htd.presensi.activity
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings.Secure
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -9,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityLoginBinding
-import com.htd.presensi.models.User
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import org.json.JSONException
@@ -17,6 +19,8 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.security.AccessController.getContext
+
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var binding: ActivityLoginBinding
@@ -50,7 +54,13 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             val loginData = getSharedPreferences("login_data", MODE_PRIVATE)
             val username: String = binding.username.editText?.text.toString()
             val password: String = binding.password.editText?.text.toString()
-            mApiInterface.login(username, password).enqueue(object : Callback<Any> {
+
+            val deviceNumber = Secure.getString(
+                contentResolver,
+                Secure.ANDROID_ID
+            )
+
+            mApiInterface.login(username, password,deviceNumber).enqueue(object : Callback<Any> {
                 override fun onResponse(
                     call: Call<Any>,
                     response: Response<Any>

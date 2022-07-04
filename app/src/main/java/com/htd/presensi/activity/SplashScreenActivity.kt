@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -56,7 +57,13 @@ class SplashScreenActivity : AppCompatActivity() {
                 } else {
                     val username = userLoggedIn.getString("email",null)
                     val password = userLoggedIn.getString("password",null)
-                    mApiInterface.login(username!!, password!!).enqueue(object : Callback<Any> {
+
+                    val deviceNumber = Settings.Secure.getString(
+                        contentResolver,
+                        Settings.Secure.ANDROID_ID
+                    )
+
+                    mApiInterface.login(username!!, password!!,deviceNumber).enqueue(object : Callback<Any> {
                         override fun onResponse(
                             call: Call<Any>,
                             response: Response<Any>

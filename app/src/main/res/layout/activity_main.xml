@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
-            android:text="@string/absen_sekarang"
+            android:text="@string/absen"
             app:icon="@drawable/ic_time"
             app:iconGravity="textStart"/>
 
@@ -53,6 +53,7 @@
             android:layout_height="wrap_content"
             android:padding="20dp"
             android:text="@string/izin_kerja"
+            android:visibility="gone"
             app:icon="@drawable/ic_book"
             app:iconGravity="textStart" />
 
@@ -62,6 +63,7 @@
             android:layout_height="wrap_content"
             android:padding="20dp"
             android:text="@string/sakit"
+            android:visibility="gone"
             app:icon="@drawable/ic_hospital"
             app:iconGravity="textStart" />
 

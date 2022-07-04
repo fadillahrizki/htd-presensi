@@ -10,7 +10,8 @@ interface ApiInterface {
     @POST("auth/login")
     fun login(
         @Field("email") email: String,
-        @Field("password") password: String
+        @Field("password") password: String,
+        @Field("device_number") deviceNumber: String,
     ): Call<Any>
 
     @GET("employees/{id}")

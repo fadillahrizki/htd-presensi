@@ -37,4 +37,7 @@ interface ApiInterface {
 
     @GET("employees/{id}/presences/{employee_precence_id}")
     fun getDetailPresence(@Header("authorization") token : String,@Path("id") id: String,@Path("employee_precence_id") employee_precence_id: String,): Call<Any>
+
+    @GET("times")
+    fun getTimes():Call<Any>
 }

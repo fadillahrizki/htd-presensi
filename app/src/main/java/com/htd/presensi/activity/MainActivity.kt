@@ -9,9 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.location.Location
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Environment
+import android.os.*
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
@@ -175,6 +173,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
             }
         }
+        mainViewModel.times.observe(this){data->
+            binding.times.text = data
+        }
     }
 
     fun api(){
@@ -196,13 +197,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                         for(item in worktimeItems){
                             val it = item.asJsonObject
                             var worktimeItem = WorktimeItem()
-                            worktimeItem.id = obj.get("id").asString
-                            worktimeItem.worktime_id = obj.get("worktime_id")?.asString
-                            worktimeItem.name = obj.get("name")?.asString
-                            worktimeItem.start_time = obj.get("start_time")?.asString
-                            worktimeItem.end_time = obj.get("end_time")?.asString
-                            worktimeItem.on_time_start = obj.get("on_time_start").asString
-                            worktimeItem.on_time_end = obj.get("on_time_end").asString
+                            worktimeItem.id = it.get("id").asString
+                            worktimeItem.worktime_id = it.get("worktime_id")?.asString
+                            worktimeItem.name = it.get("name")?.asString
+                            worktimeItem.start_time = it.get("start_time")?.asString
+                            worktimeItem.end_time = it.get("end_time")?.asString
+                            worktimeItem.on_time_start = it.get("on_time_start").asString
+                            worktimeItem.on_time_end = it.get("on_time_end").asString
 
                             arrWorktimeItems.add(worktimeItem)
                         }
@@ -229,6 +230,42 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                 showAlert("Ada Kesalahan Server")
 //                Toast.makeText(applicationContext,"Ada Kesalahan Server",Toast.LENGTH_LONG).show()
                 loading.hide()
+            }
+
+        })
+
+        val mainHandler = Handler(Looper.getMainLooper())
+
+        mainHandler.post(object : Runnable {
+            override fun run() {
+                getTimes()
+                mainHandler.postDelayed(this, 1000)
+            }
+        })
+    }
+
+    fun getTimes(){
+        mApiInterface.getTimes().enqueue(object : Callback<Any>{
+            override fun onResponse(call: Call<Any>?, response: Response<Any>) {
+                if(response.code() == 200){
+                    Log.d(packageName, response.body().toString())
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.get("data").asString
+                    mainViewModel.times.postValue(data)
+                }else{
+                    var jsonObject: JSONObject? = null
+                    try {
+                        jsonObject = JSONObject(response.errorBody().string())
+                        val message: String = jsonObject.getString("message")
+                        Toast.makeText(applicationContext,message,Toast.LENGTH_SHORT).show()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<Any>?, t: Throwable?) {
+                Log.d(packageName, t.toString())
             }
 
         })

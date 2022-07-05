@@ -92,14 +92,14 @@ class ProfileActivity : AppCompatActivity(){
                 var data = res.getAsJsonObject("data")
 
                 var profile = Profile()
-                profile.nama = data.get("name").asString
-                profile.nip = data.get("nip").asString
-                profile.golongan = data.get("group").asString
-                profile.jabatan = data.get("position").asString
-                profile.instansi = data.getAsJsonObject("workunit").get("name").asString
+                profile.nama = if(data.get("name") != null) data.get("name").asString  else "-"
+                profile.nip = if(data.get("nip") != null) data.get("nip").asString  else "-"
+                profile.golongan = if(data.get("group") != null) data.get("group").asString  else "-"
+                profile.jabatan = if(data.get("position") != null) data.get("position").asString  else "-"
+                profile.instansi = if(data.get("workunit") != null) data.getAsJsonObject("workunit").get("name").asString  else "-"
                 profile.atasan = if(data.get("head_position") != null) data.get("head_position").asString else "-"
                 profile.namaAtasan = if(data.get("head_name") != null) data.get("head_name").asString else "-"
-                profile.ponsel = data.get("phone").asString
+                profile.ponsel = if(data.get("phone") != null) data.get("phone").asString  else "-"
 
                 mainViewModel.profile.postValue(profile)
             }

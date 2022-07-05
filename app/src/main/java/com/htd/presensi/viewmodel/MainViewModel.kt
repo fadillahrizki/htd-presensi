@@ -5,9 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.htd.presensi.models.Presence
 import com.htd.presensi.models.Profile
+import com.htd.presensi.models.WorktimeItem
 
 class MainViewModel : ViewModel() {
     var histories : MutableLiveData<ArrayList<Presence>> = MutableLiveData()
     var profile : MutableLiveData<Profile> = MutableLiveData()
     var historyDetail : MutableLiveData<Presence> = MutableLiveData()
+    var worktimeItems : MutableLiveData<ArrayList<WorktimeItem>> = MutableLiveData()
 }

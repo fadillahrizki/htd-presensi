@@ -17,25 +17,25 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
+import com.google.gson.Gson
 import com.htd.presensi.BuildConfig
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityMainBinding
+import com.htd.presensi.models.WorktimeItem
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import com.htd.presensi.util.Loading
 import com.htd.presensi.util.LocationDistance
+import com.htd.presensi.viewmodel.MainViewModel
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -47,9 +47,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
+    AdapterView.OnItemSelectedListener {
 
     lateinit var binding: ActivityMainBinding
     lateinit var mApiInterface: ApiInterface
@@ -63,6 +66,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
     lateinit var luarLokasiBtn : Button
     lateinit var luarLokasiText : TextView
 
+    lateinit var worktimeSpinner: Spinner
+
+    lateinit var worktimesAdapter: ArrayAdapter<String>
+    var arrWorktimeItems: ArrayList<String> = ArrayList()
+    var arrWorktimeItemIds: ArrayList<String> = ArrayList()
+    var selectedWorktime = ""
+    var selectedWorktimeId = ""
+
     val REQUEST_IMAGE_CAPTURE = 1
     val REQUEST_FILE_IZIN = 2
     val REQUEST_FILE_SAKIT = 3
@@ -73,6 +84,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
     var inLocation = true
     var radius: Double? = 0.0
     var luarLokasiUri : Uri? = null
+
+    var mainViewModel: MainViewModel = MainViewModel()
+
+    lateinit var worktimeDialog : Dialog
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,16 +149,89 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 //            binding.sakit.visibility = View.VISIBLE
 //        }
 
+        worktimeDialog = Dialog(this)
+        worktimeDialog.setContentView(R.layout.worktime)
+        worktimeDialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        worktimeSpinner = worktimeDialog.findViewById(R.id.worktime_spinner) as Spinner
+
         if(radius == null){
             binding.absen.visibility = View.GONE
         }
     }
 
     fun observe(){
+        mainViewModel.worktimeItems.observe(this){data->
+            if(data != null){
+                arrWorktimeItems.add("- Pilih -")
+                arrWorktimeItemIds.add("0")
+                for(item in data) {
+                    arrWorktimeItems.add(item.name!!)
+                    arrWorktimeItemIds.add(item.id!!)
+                }
 
+                worktimesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, arrWorktimeItems)
+                worktimesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                worktimeSpinner.adapter = worktimesAdapter
+
+            }
+        }
     }
 
     fun api(){
+        mApiInterface.profile(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!).enqueue(object : Callback<Any>{
+            override fun onResponse(call: Call<Any>?, response: Response<Any>) {
+                if(response.code() == 200){
+                    Log.d(packageName, response.body().toString())
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.getAsJsonObject("data")
+
+                    val worktimesArray = data.getAsJsonArray("worktimes")
+
+                    var arrWorktimeItems = ArrayList<WorktimeItem>()
+
+                    for(worktime in worktimesArray){
+                        val obj = worktime.asJsonObject
+                        var worktimeItems = obj.getAsJsonArray("items")
+
+                        for(item in worktimeItems){
+                            val it = item.asJsonObject
+                            var worktimeItem = WorktimeItem()
+                            worktimeItem.id = obj.get("id").asString
+                            worktimeItem.worktime_id = obj.get("worktime_id")?.asString
+                            worktimeItem.name = obj.get("name")?.asString
+                            worktimeItem.start_time = obj.get("start_time")?.asString
+                            worktimeItem.end_time = obj.get("end_time")?.asString
+                            worktimeItem.on_time_start = obj.get("on_time_start").asString
+                            worktimeItem.on_time_end = obj.get("on_time_end").asString
+
+                            arrWorktimeItems.add(worktimeItem)
+                        }
+                    }
+
+                    mainViewModel.worktimeItems.postValue(arrWorktimeItems)
+                }else{
+                    var jsonObject: JSONObject? = null
+                    try {
+                        jsonObject = JSONObject(response.errorBody().string())
+                        val message: String = jsonObject.getString("message")
+                        showAlert(message)
+//                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+                Log.d(packageName, response.raw().toString())
+                loading.hide()
+            }
+
+            override fun onFailure(call: Call<Any>?, t: Throwable?) {
+                Log.d(packageName, t.toString())
+                showAlert("Ada Kesalahan Server")
+//                Toast.makeText(applicationContext,"Ada Kesalahan Server",Toast.LENGTH_LONG).show()
+                loading.hide()
+            }
+
+        })
     }
 
     fun listener(){
@@ -152,6 +241,35 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         binding.izinKerja.setOnClickListener(this)
         binding.sakit.setOnClickListener(this)
         binding.logout.setOnClickListener(this)
+        worktimeSpinner.setOnItemSelectedListener(this)
+
+        (worktimeDialog.findViewById(R.id.ok) as Button).setOnClickListener {
+            if(selectedWorktimeId != "0"){
+                worktimeDialog.dismiss()
+                getLocation()
+            }else{
+                showAlert("Pilih Jam Kerja lebih dahulu!")
+            }
+        }
+
+        (worktimeDialog.findViewById(R.id.cancel) as Button).setOnClickListener {
+            worktimeDialog.dismiss()
+        }
+    }
+
+
+    override fun onItemSelected(p0: AdapterView<*>?, view: View?, idx: Int, p3: Long) {
+        when(p0?.id){
+            worktimeSpinner.id -> {
+                selectedWorktime = arrWorktimeItems[idx]
+                selectedWorktimeId = arrWorktimeItemIds[idx]
+//                worktimeDialog.dismiss()
+            }
+        }
+    }
+
+    override fun onNothingSelected(p0: AdapterView<*>?) {
+        TODO("Not yet implemented")
     }
 
     override fun onLocationChanged(location: Location) {
@@ -235,7 +353,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
     override fun onClick(view: View?) {
         when(view?.id){
             binding.absen.id->{
-                getLocation()
+                worktimeDialog.show()
             }
             binding.profil.id->{
                 startActivity(Intent(applicationContext, ProfileActivity::class.java))
@@ -425,8 +543,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         val lngBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(currentLocation != null) currentLocation?.longitude.toString() else "")
         val latBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(currentLocation != null) currentLocation?.latitude.toString() else "")
         val inLocationBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(inLocation) inLocation.toString() else "")
+        val worktimeItemId = RequestBody.create(MediaType.parse("multipart/form-data"),selectedWorktimeId)
 
-        mApiInterface.presences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,typeBody,attachment,lngBody,latBody,inLocationBody,pic_url).enqueue(object : Callback<Any> {
+        mApiInterface.presences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,typeBody,attachment,lngBody,latBody,inLocationBody,pic_url,worktimeItemId).enqueue(object : Callback<Any> {
             override fun onResponse(
                 call: Call<Any>,
                 response: Response<Any>

@@ -32,7 +32,7 @@ class HistoryDetailActivity : AppCompatActivity() {
     lateinit var userLoggedIn: SharedPreferences
     lateinit var mApiInterface: ApiInterface
 
-    val BASE_URL = "https://api-presence.z-techno.com/storage/"
+    val BASE_URL = ApiClient.BASE_URL+"storage/"
 
     lateinit var loading:Loading
 
@@ -94,7 +94,7 @@ class HistoryDetailActivity : AppCompatActivity() {
             }
 
 
-            binding.status.text = data.status?.capitalize()
+            binding.status.text = data.worktimeItem?.capitalize()
             binding.type.text = data.type?.capitalize()
             binding.date.text = data.date+" ("+data.time+")"
             loading.hide()
@@ -136,6 +136,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                 presence.lng = data.get("lng")?.asString
                 presence.type = data.get("type").asString
                 presence.status = data.get("status").asString
+                presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                 presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                 presence.time = SimpleDateFormat("HH:mm").format(date)
 

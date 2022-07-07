@@ -22,7 +22,7 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val dt = data[position]
-        holder.tvStatus.text = dt.status?.capitalize()
+        holder.tvStatus.text = dt.worktimeItem?.capitalize()
         holder.tvType.text = dt.type?.capitalize()
         holder.tvDate.text = dt.date
         holder.tvTime.text = dt.time

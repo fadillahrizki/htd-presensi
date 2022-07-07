@@ -45,6 +45,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -84,6 +85,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     var luarLokasiUri : Uri? = null
 
     var mainViewModel: MainViewModel = MainViewModel()
+
+    var counts = emptyArray<Int>()
+    var time = 0
+    var count = "00:00:00"
 
     lateinit var worktimeDialog : Dialog
 
@@ -174,8 +179,44 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
             }
         }
         mainViewModel.times.observe(this){data->
-            binding.times.text = data
+            count = data
         }
+
+        val mainHandler = Handler(Looper.getMainLooper())
+
+        mainHandler.post(object : Runnable {
+            override fun run() {
+                counts = count.split(':').map{it.toInt()}.toTypedArray()
+                time = counts[2]
+                time += counts[1] * 60
+                time += (counts[0] * 60) * 60
+
+                if (counts[1] >= 60 && counts[0] > 0) {
+                    counts[0] = counts[0] + 1
+                    counts[1] = 1
+                }
+
+                if (counts[2] >= 60 && counts[1] > 0) {
+                    counts[1] = counts[1] + 1
+                    counts[2] = 1
+                }
+
+                if (counts[0] >= 60) {
+                    counts[0] = 0
+                    counts[1] = 0
+                    counts[2] = 0
+                }
+
+                counts[2]++
+                time++
+
+                count = "${counts[0]}:${counts[1]}:${counts[2]}"
+
+                binding.times.text = count
+                Log.d(packageName,count)
+                mainHandler.postDelayed(this, 1000)
+            }
+        })
     }
 
     fun api(){
@@ -234,14 +275,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
         })
 
-        val mainHandler = Handler(Looper.getMainLooper())
 
-        mainHandler.post(object : Runnable {
-            override fun run() {
-                getTimes()
-                mainHandler.postDelayed(this, 1000)
-            }
-        })
+        getTimes()
     }
 
     fun getTimes(){
@@ -285,7 +320,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                 worktimeDialog.dismiss()
                 getLocation()
             }else{
-                showAlert("Pilih Jam Kerja lebih dahulu!")
+                showAlert("Pilih Absen lebih dahulu!")
             }
         }
 

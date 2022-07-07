@@ -139,6 +139,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     presence.lng = obj.get("lng")?.asString
                     presence.type = obj.get("type").asString
                     presence.status = obj.get("status").asString
+                    presence.worktimeItem = if(obj.get("worktime_item") != null) obj.get("worktime_item").asJsonObject.get("name").asString else ""
                     presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                     presence.time = SimpleDateFormat("HH:mm").format(date)
 

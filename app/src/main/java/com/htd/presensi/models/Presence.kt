@@ -10,4 +10,5 @@ data class Presence(
     var lat:String? = null,
     var lng:String? = null,
     var time:String? = null,
+    var worktimeItem:String? = null,
 )

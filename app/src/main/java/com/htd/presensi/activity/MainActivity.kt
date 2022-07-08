@@ -152,10 +152,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 //            binding.sakit.visibility = View.VISIBLE
 //        }
 
-        worktimeDialog = Dialog(this)
-        worktimeDialog.setContentView(R.layout.worktime)
-        worktimeDialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        worktimeSpinner = worktimeDialog.findViewById(R.id.worktime_spinner) as Spinner
+//        worktimeDialog = Dialog(this)
+//        worktimeDialog.setContentView(R.layout.worktime)
+//        worktimeDialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        worktimeSpinner = worktimeDialog.findViewById(R.id.worktime_spinner) as Spinner
 
         if(radius == null){
             binding.absen.visibility = View.GONE
@@ -163,21 +163,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     }
 
     fun observe(){
-        mainViewModel.worktimeItems.observe(this){data->
+//        mainViewModel.activeWorktime.observe(this){data->
+//            if(data != null){
+//                arrWorktimeItems.add("- Pilih -")
+//                arrWorktimeItemIds.add("0")
+//                for(item in data) {
+//                    arrWorktimeItems.add(item.name!!)
+//                    arrWorktimeItemIds.add(item.id!!)
+//                }
+//
+//                worktimesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, arrWorktimeItems)
+//                worktimesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//                worktimeSpinner.adapter = worktimesAdapter
+//
+//            }
+//        }
+
+        mainViewModel.activeWorktime.observe(this){data->
             if(data != null){
-                arrWorktimeItems.add("- Pilih -")
-                arrWorktimeItemIds.add("0")
-                for(item in data) {
-                    arrWorktimeItems.add(item.name!!)
-                    arrWorktimeItemIds.add(item.id!!)
-                }
-
-                worktimesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, arrWorktimeItems)
-                worktimesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                worktimeSpinner.adapter = worktimesAdapter
-
+                selectedWorktimeId = data.id!!
+                getLocation()
+            }else{
+                showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
             }
         }
+
         mainViewModel.times.observe(this){data->
             count = data
         }
@@ -220,6 +230,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     }
 
     fun api(){
+        getTimes()
+    }
+
+    fun getWorktime(){
         mApiInterface.profile(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!).enqueue(object : Callback<Any>{
             override fun onResponse(call: Call<Any>?, response: Response<Any>) {
                 if(response.code() == 200){
@@ -227,36 +241,30 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                     var res = Gson().toJsonTree(response.body()).asJsonObject
                     var data = res.getAsJsonObject("data")
 
-                    val worktimesArray = data.getAsJsonArray("worktimes")
+                    val activeWorktime = data.getAsJsonObject("active_worktime")
 
-                    var arrWorktimeItems = ArrayList<WorktimeItem>()
+                    if(activeWorktime != null){
+                        var worktimeItem = WorktimeItem()
+                        worktimeItem.id = activeWorktime.get("id").asString
+                        worktimeItem.worktime_id = activeWorktime.get("worktime_id")?.asString
+                        worktimeItem.name = activeWorktime.get("name")?.asString
+                        worktimeItem.start_time = activeWorktime.get("start_time")?.asString
+                        worktimeItem.end_time = activeWorktime.get("end_time")?.asString
+                        worktimeItem.on_time_start = activeWorktime.get("on_time_start").asString
+                        worktimeItem.on_time_end = activeWorktime.get("on_time_end").asString
 
-                    for(worktime in worktimesArray){
-                        val obj = worktime.asJsonObject
-                        var worktimeItems = obj.getAsJsonArray("items")
+                        mainViewModel.activeWorktime.postValue(worktimeItem)
 
-                        for(item in worktimeItems){
-                            val it = item.asJsonObject
-                            var worktimeItem = WorktimeItem()
-                            worktimeItem.id = it.get("id").asString
-                            worktimeItem.worktime_id = it.get("worktime_id")?.asString
-                            worktimeItem.name = it.get("name")?.asString
-                            worktimeItem.start_time = it.get("start_time")?.asString
-                            worktimeItem.end_time = it.get("end_time")?.asString
-                            worktimeItem.on_time_start = it.get("on_time_start").asString
-                            worktimeItem.on_time_end = it.get("on_time_end").asString
-
-                            arrWorktimeItems.add(worktimeItem)
-                        }
+                    }else{
+                        showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
                     }
-
-                    mainViewModel.worktimeItems.postValue(arrWorktimeItems)
                 }else{
                     var jsonObject: JSONObject? = null
                     try {
                         jsonObject = JSONObject(response.errorBody().string())
                         val message: String = jsonObject.getString("message")
-                        showAlert(message)
+                        showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+//                        showAlert(message)
 //                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {
                         e.printStackTrace()
@@ -274,9 +282,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
             }
 
         })
-
-
-        getTimes()
     }
 
     fun getTimes(){
@@ -313,30 +318,30 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         binding.izinKerja.setOnClickListener(this)
         binding.sakit.setOnClickListener(this)
         binding.logout.setOnClickListener(this)
-        worktimeSpinner.setOnItemSelectedListener(this)
-
-        (worktimeDialog.findViewById(R.id.ok) as Button).setOnClickListener {
-            if(selectedWorktimeId != "0"){
-                worktimeDialog.dismiss()
-                getLocation()
-            }else{
-                showAlert("Pilih Absen lebih dahulu!")
-            }
-        }
-
-        (worktimeDialog.findViewById(R.id.cancel) as Button).setOnClickListener {
-            worktimeDialog.dismiss()
-        }
+//        worktimeSpinner.setOnItemSelectedListener(this)
+//
+//        (worktimeDialog.findViewById(R.id.ok) as Button).setOnClickListener {
+//            if(selectedWorktimeId != "0"){
+//                worktimeDialog.dismiss()
+//                getLocation()
+//            }else{
+//                showAlert("Pilih Absen lebih dahulu!")
+//            }
+//        }
+//
+//        (worktimeDialog.findViewById(R.id.cancel) as Button).setOnClickListener {
+//            worktimeDialog.dismiss()
+//        }
     }
 
 
     override fun onItemSelected(p0: AdapterView<*>?, view: View?, idx: Int, p3: Long) {
         when(p0?.id){
-            worktimeSpinner.id -> {
-                selectedWorktime = arrWorktimeItems[idx]
-                selectedWorktimeId = arrWorktimeItemIds[idx]
-//                worktimeDialog.dismiss()
-            }
+//            worktimeSpinner.id -> {
+//                selectedWorktime = arrWorktimeItems[idx]
+//                selectedWorktimeId = arrWorktimeItemIds[idx]
+////                worktimeDialog.dismiss()
+//            }
         }
     }
 
@@ -425,7 +430,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     override fun onClick(view: View?) {
         when(view?.id){
             binding.absen.id->{
-                worktimeDialog.show()
+                getWorktime()
             }
             binding.profil.id->{
                 startActivity(Intent(applicationContext, ProfileActivity::class.java))

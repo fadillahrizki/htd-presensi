@@ -92,7 +92,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                         editor.putString("password", password)
                         editor.putString("role", userData.get("role").asString)
                         editor.putString("radius", userData.get("radius")?.asString)
-                        editor.putString("employee_id", userData.get("employee_id").asString)
+                        editor.putString("employee_id", userData.get("employee_id").asInt.toString())
                         editor.putString("token", data.get("token").asString)
 
                         editor.putString("places",userData.getAsJsonArray("places").toString())

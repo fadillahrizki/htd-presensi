@@ -14,6 +14,8 @@ import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import com.htd.presensi.util.Loading
 import com.htd.presensi.viewmodel.MainViewModel
+import org.json.JSONException
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -88,20 +90,41 @@ class ProfileActivity : AppCompatActivity(){
                 call: Call<Any>,
                 response: Response<Any>
             ) {
-                var res = Gson().toJsonTree(response.body()).asJsonObject
-                var data = res.getAsJsonObject("data")
+                if(response.code() == 200) {
+                    Log.d(packageName, response.body().toString())
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.getAsJsonObject("data")
 
-                var profile = Profile()
-                profile.nama = if(data.get("name") != null) data.get("name").asString  else "-"
-                profile.nip = if(data.get("nip") != null) data.get("nip").asString  else "-"
-                profile.golongan = if(data.get("group") != null) data.get("group").asString  else "-"
-                profile.jabatan = if(data.get("position") != null) data.get("position").asString  else "-"
-                profile.instansi = if(data.get("workunit") != null) data.getAsJsonObject("workunit").get("name").asString  else "-"
-                profile.atasan = if(data.get("head_position") != null) data.get("head_position").asString else "-"
-                profile.namaAtasan = if(data.get("head_name") != null) data.get("head_name").asString else "-"
-                profile.ponsel = if(data.get("phone") != null) data.get("phone").asString  else "-"
+                    var profile = Profile()
+                    profile.nama = if (data.get("name") != null) data.get("name").asString else "-"
+                    profile.nip = if (data.get("nip") != null) data.get("nip").asString else "-"
+                    profile.golongan =
+                        if (data.get("group") != null) data.get("group").asString else "-"
+                    profile.jabatan =
+                        if (data.get("position") != null) data.get("position").asString else "-"
+                    profile.instansi =
+                        if (data.get("workunit") != null) data.getAsJsonObject("workunit")
+                            .get("name").asString else "-"
+                    profile.atasan =
+                        if (data.get("head_position") != null) data.get("head_position").asString else "-"
+                    profile.namaAtasan =
+                        if (data.get("head_name") != null) data.get("head_name").asString else "-"
+                    profile.ponsel =
+                        if (data.get("phone") != null) data.get("phone").asString else "-"
 
-                mainViewModel.profile.postValue(profile)
+                    mainViewModel.profile.postValue(profile)
+                }else{
+                    var jsonObject: JSONObject? = null
+                    try {
+                        jsonObject = JSONObject(response.errorBody().string())
+                        val message: String = jsonObject.getString("message")
+                        Log.d(packageName,message)
+//                        showAlert(message)
+//                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {

@@ -12,5 +12,6 @@ class MainViewModel : ViewModel() {
     var profile : MutableLiveData<Profile> = MutableLiveData()
     var historyDetail : MutableLiveData<Presence> = MutableLiveData()
     var worktimeItems : MutableLiveData<ArrayList<WorktimeItem>> = MutableLiveData()
+    var activeWorktime : MutableLiveData<WorktimeItem> = MutableLiveData()
     var times : MutableLiveData<String> = MutableLiveData()
 }

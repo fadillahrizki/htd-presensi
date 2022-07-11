@@ -48,6 +48,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.system.measureTimeMillis
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
@@ -182,7 +183,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         mainViewModel.activeWorktime.observe(this){data->
             if(data != null){
                 selectedWorktimeId = data.id!!
-                getLocation()
+                checkIfExists()
             }else{
                 showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
             }
@@ -367,7 +368,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                     alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
                     alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
                     alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
-                        showDialog()
+                        takePicture()
+//                        showDialog()
 //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
                     }
                     alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
@@ -425,6 +427,29 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                 Toast.makeText(this,"Permintaan Kamera Diterima",Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    fun checkIfExists() {
+        mApiInterface.checkIfExists(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,selectedWorktimeId).enqueue(object : Callback<Any>{
+            override fun onResponse(call: Call<Any>?, response: Response<Any>) {
+                if(response.code() == 200){
+                    Log.d(packageName, response.body().toString())
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.get("data").asBoolean
+                    if(data){
+                        showAlert("Gagal! Anda sudah melakukan absen")
+                    }else{
+                        getLocation()
+                    }
+                }
+                Log.d(packageName, response.raw().toString())
+            }
+
+            override fun onFailure(call: Call<Any>?, t: Throwable?) {
+                Log.d(packageName, t.toString())
+                showAlert("Ada Kesalahan Server")
+            }
+        })
     }
 
     override fun onClick(view: View?) {
@@ -589,6 +614,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
             }
         }
         return result
+    }
+
+    private fun viewMap() {
+        Log.i(packageName, "${currentLocation?.longitude}, ${currentLocation?.latitude}")
+
+        val gmmIntentUri = Uri.parse("google.streetview:cbll=${currentLocation?.latitude},${currentLocation?.longitude}")
+        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent)
     }
 
     fun presences(type:String, uriFile: Uri){

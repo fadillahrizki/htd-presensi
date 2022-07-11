@@ -34,10 +34,22 @@ interface ApiInterface {
         @Part("worktime_item_id") worktimeItemId: RequestBody,
     ): Call<Any>
 
+    @Multipart
+    @POST("employees/{id}/presences/{employee_presence_id}/upload-attachment")
+    fun uploadAttachment(
+        @Header("authorization") token : String,
+        @Path("id") id:String,
+        @Path("employee_presence_id") employee_presence_id:String,
+        @Part attachment : MultipartBody.Part,
+    ): Call<Any>
 
     @GET("employees/{id}/presences/{employee_precence_id}")
     fun getDetailPresence(@Header("authorization") token : String,@Path("id") id: String,@Path("employee_precence_id") employee_precence_id: String,): Call<Any>
 
     @GET("times")
     fun getTimes():Call<Any>
+
+    @GET("employees/{id}/presences/check_if_exists/{worktime_item_id}")
+    fun checkIfExists(@Header("authorization") token : String,@Path("id") id: String,@Path("worktime_item_id") worktime_item_id: String,): Call<Any>
+
 }

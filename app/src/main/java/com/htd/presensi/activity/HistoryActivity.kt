@@ -80,7 +80,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
         statusAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
         binding.filter.status.adapter = statusAdapter
 
-        binding.filter.fromDate.text = CustomDatePickerDialog.year.toString()+"-01-01"
+        binding.filter.fromDate.text = CustomDatePickerDialog.year.toString()+"-"+(CustomDatePickerDialog.month+1).toString()+"-01"
         binding.filter.toDate.text = CustomDatePickerDialog.year.toString()+"-"+(CustomDatePickerDialog.month+1).toString()+"-"+CustomDatePickerDialog.day.toString()
 
         binding.rvPresences.layoutManager = LinearLayoutManager(this)

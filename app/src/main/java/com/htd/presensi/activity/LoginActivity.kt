@@ -75,6 +75,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                         try {
                             jsonObject = JSONObject(response.errorBody().string())
                             val message: String = jsonObject.getString("message")
+                            if(message == "Device number not valid"){
+                                binding.tvError.setText(message)
+                            }
                             Toast.makeText(applicationContext,message, Toast.LENGTH_LONG).show()
                         } catch (e: JSONException) {
                             e.printStackTrace()
@@ -98,6 +101,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                         editor.putString("places",userData.getAsJsonArray("places").toString())
 
                         editor.apply()
+
+                        Log.d(packageName,userData.toString())
 
                         binding.cardError.setVisibility(View.GONE)
                         val intent = Intent(applicationContext, SplashScreenActivity::class.java)

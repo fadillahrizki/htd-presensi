@@ -77,6 +77,8 @@ class SplashScreenActivity : AppCompatActivity() {
                                     val message: String = jsonObject.getString("message")
                                     Toast.makeText(applicationContext,message, Toast.LENGTH_LONG).show()
 
+                                    Log.d(packageName,message)
+
                                     val intent = Intent(this@SplashScreenActivity, LoginActivity::class.java)
                                     startActivity(intent)
                                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)

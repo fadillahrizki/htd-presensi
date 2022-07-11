@@ -223,7 +223,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                 count = "${counts[0]}:${counts[1]}:${counts[2]}"
 
                 binding.times.text = count
-                Log.d(packageName,count)
                 mainHandler.postDelayed(this, 1000)
             }
         })
@@ -360,6 +359,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
             fusedLocationClient.lastLocation.addOnSuccessListener {
                 currentLocation=it
+                Log.d(packageName,currentLocation.toString())
                 if(checkLocation()) {
                     takePicture()
                 }else{

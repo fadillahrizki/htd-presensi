@@ -38,6 +38,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:textAllCaps="false"
+            android:textAlignment="center"
             android:textColor="@color/white"/>
 
     </LinearLayout>

@@ -76,7 +76,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                             jsonObject = JSONObject(response.errorBody().string())
                             Log.d(packageName,jsonObject.toString())
                             val message: String = jsonObject.getString("message")
-                            if(message.contains("Device number")){
+                            if(response.code() == 401){
                                 binding.tvError.setText(message)
                             }else{
                                 Toast.makeText(applicationContext,message, Toast.LENGTH_LONG).show()

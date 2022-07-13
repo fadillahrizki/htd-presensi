@@ -582,7 +582,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
         val imageOut = contentResolver.openOutputStream(_uri)
         try {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, imageOut)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 40, imageOut)
             Log.d(packageName, "SIZE NEW BITMAP HERE : ${bitmap.width}")
         } finally {
             imageOut!!.close()

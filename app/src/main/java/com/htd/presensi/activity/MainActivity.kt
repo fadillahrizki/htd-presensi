@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 //        worktimeDialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 //        worktimeSpinner = worktimeDialog.findViewById(R.id.worktime_spinner) as Spinner
 
-        binding.name.text = userLoggedIn.getString("name",null)
+        binding.name.text = "Hai, "+userLoggedIn.getString("name",null)
 
         if(radius == null){
             binding.absen.visibility = View.GONE
@@ -439,7 +439,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                     var res = Gson().toJsonTree(response.body()).asJsonObject
                     var data = res.get("data").asBoolean
                     if(data){
-                        showAlert("Gagal! Anda sudah melakukan absen")
+                        showAlert("Maaf! Anda sudah melakukan absen")
                     }else{
                         getLocation()
                     }
@@ -571,9 +571,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
         var bitmap = _bitmap
         Log.d(packageName, "SIZE BITMAP : ${bitmap.width}")
-//        if (bitmap.width > 100) {
-//            val divider = bitmap.width / 100
-//            val width = 100
+//        if (bitmap.width > 1000) {
+//            val divider = bitmap.width / 1000
+//            val width = 1000
 //            val height = bitmap.height / divider
 //            bitmap = Bitmap.createScaledBitmap(bitmap, width, height, false)
 //        }

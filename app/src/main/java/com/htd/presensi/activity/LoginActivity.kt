@@ -90,9 +90,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                         val editor = loginData.edit()
                         val data = res.get("data").asJsonObject
                         val userData = data.get("user").asJsonObject
+                        val employeeData = userData.get("employee").asJsonObject
 
                         editor.putString("id", userData.get("id").asString)
-                        editor.putString("name", userData.get("name").asString)
+                        editor.putString("name", employeeData.get("name").asString)
                         editor.putString("email", userData.get("email").asString)
                         editor.putString("password", password)
                         editor.putString("role", userData.get("role").asString)

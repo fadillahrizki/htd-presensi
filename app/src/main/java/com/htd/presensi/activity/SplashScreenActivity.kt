@@ -4,17 +4,15 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.htd.presensi.R
-import com.htd.presensi.activity.LoginActivity
-import com.htd.presensi.activity.MainActivity
 import com.htd.presensi.databinding.ActivitySplashScreenBinding
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
@@ -25,14 +23,28 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+
 class SplashScreenActivity : AppCompatActivity() {
     private lateinit var userLoggedIn: SharedPreferences
     private lateinit var binding: ActivitySplashScreenBinding
     lateinit var mApiInterface: ApiInterface
+
+    fun getDeviceName(): String? {
+        val manufacturer = Build.MANUFACTURER
+        val model = Build.MODEL
+        return if (model.startsWith(manufacturer)) {
+            model.capitalize()
+        } else {
+            ((manufacturer).toString() + " " + model).capitalize()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashScreenBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
+
+        Log.d("HP", getDeviceName()!!)
         userLoggedIn = getSharedPreferences("login_data", MODE_PRIVATE)
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         Handler().postDelayed({

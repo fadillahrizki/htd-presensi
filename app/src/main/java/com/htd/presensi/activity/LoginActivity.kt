@@ -74,11 +74,13 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                         var jsonObject: JSONObject? = null
                         try {
                             jsonObject = JSONObject(response.errorBody().string())
+                            Log.d(packageName,jsonObject.toString())
                             val message: String = jsonObject.getString("message")
-                            if(message == "Device number not valid"){
+                            if(message.contains("Device number")){
                                 binding.tvError.setText(message)
+                            }else{
+                                Toast.makeText(applicationContext,message, Toast.LENGTH_LONG).show()
                             }
-                            Toast.makeText(applicationContext,message, Toast.LENGTH_LONG).show()
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }

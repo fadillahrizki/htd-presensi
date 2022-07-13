@@ -30,7 +30,7 @@
             android:textSize="40sp"
             android:textAllCaps="false"
             android:layout_marginVertical="12dp"
-            android:textColor="@color/white"/>
+            android:textColor="@color/primary_200"/>
 
         <TextView
             android:text="@string/app_description"
@@ -39,7 +39,7 @@
             android:textSize="20sp"
             android:textAllCaps="false"
             android:textAlignment="center"
-            android:textColor="@color/white"/>
+            android:textColor="@color/primary_200"/>
 
     </LinearLayout>
 

@@ -158,6 +158,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 //        worktimeDialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 //        worktimeSpinner = worktimeDialog.findViewById(R.id.worktime_spinner) as Spinner
 
+        binding.name.text = userLoggedIn.getString("name",null)
+
         if(radius == null){
             binding.absen.visibility = View.GONE
         }

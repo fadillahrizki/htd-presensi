@@ -549,9 +549,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
             var place = places.getJSONObject(i)
             var newLoc = Location("")
-            newLoc.latitude = place.getString("lat").toDouble()
-            newLoc.longitude = place.getString("lng").toDouble()
-            Log.d(packageName,newLoc.latitude.toString())
+            newLoc.latitude = place.getString("lat").replace(",",".").toDouble()
+            newLoc.longitude = place.getString("lng").replace(",",".").toDouble()
             var distance = LocationDistance.betweenCoordinates(currentLocation!!,newLoc)
 
             if(distance <= radius!!){

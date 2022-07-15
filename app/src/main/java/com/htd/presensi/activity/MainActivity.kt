@@ -551,7 +551,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
             var newLoc = Location("")
             newLoc.latitude = place.getString("lat").replace(",",".").toDouble()
             newLoc.longitude = place.getString("lng").replace(",",".").toDouble()
-            var distance = LocationDistance.betweenCoordinates(currentLocation!!,newLoc)
+            var distance = LocationDistance.betweenCoordinates(currentLocation!!,newLoc
+            )
 
             if(distance <= radius!!){
                 return true
@@ -658,7 +659,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         val inLocationBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(inLocation) inLocation.toString() else "")
         val worktimeItemId = RequestBody.create(MediaType.parse("multipart/form-data"),selectedWorktimeId)
 
-        mApiInterface.presences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,typeBody,attachment,lngBody,latBody,inLocationBody,pic_url,worktimeItemId).enqueue(object : Callback<Any> {
+        mApiInterface.presences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,typeBody,attachment,latBody,lngBody,inLocationBody,pic_url,worktimeItemId).enqueue(object : Callback<Any> {
             override fun onResponse(
                 call: Call<Any>,
                 response: Response<Any>

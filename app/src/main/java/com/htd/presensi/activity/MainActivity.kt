@@ -3,6 +3,7 @@ package com.htd.presensi.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -12,6 +13,7 @@ import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -45,10 +47,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.system.measureTimeMillis
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
@@ -245,20 +244,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
                     val activeWorktime = data.getAsJsonObject("active_worktime")
 
-                    if(activeWorktime != null){
-                        var worktimeItem = WorktimeItem()
-                        worktimeItem.id = activeWorktime.get("id").asString
-                        worktimeItem.worktime_id = activeWorktime.get("worktime_id")?.asString
-                        worktimeItem.name = activeWorktime.get("name")?.asString
-                        worktimeItem.start_time = activeWorktime.get("start_time")?.asString
-                        worktimeItem.end_time = activeWorktime.get("end_time")?.asString
-                        worktimeItem.on_time_start = activeWorktime.get("on_time_start").asString
-                        worktimeItem.on_time_end = activeWorktime.get("on_time_end").asString
-
-                        mainViewModel.activeWorktime.postValue(worktimeItem)
-
+                    if(data.get("is_holiday").asBoolean){
+                        showAlert("Maaf! Sekarang Sedang Libur.")
                     }else{
-                        showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+
+                        if(activeWorktime != null){
+                            var worktimeItem = WorktimeItem()
+                            worktimeItem.id = activeWorktime.get("id").asString
+                            worktimeItem.worktime_id = activeWorktime.get("worktime_id")?.asString
+                            worktimeItem.name = activeWorktime.get("name")?.asString
+                            worktimeItem.start_time = activeWorktime.get("start_time")?.asString
+                            worktimeItem.end_time = activeWorktime.get("end_time")?.asString
+                            worktimeItem.on_time_start = activeWorktime.get("on_time_start").asString
+                            worktimeItem.on_time_end = activeWorktime.get("on_time_end").asString
+
+                            mainViewModel.activeWorktime.postValue(worktimeItem)
+
+                        }else{
+                            showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+                        }
                     }
                 }else{
                     var jsonObject: JSONObject? = null
@@ -457,7 +461,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     override fun onClick(view: View?) {
         when(view?.id){
             binding.absen.id->{
-                getWorktime()
+                if(isMockSettingsON()){
+                    showAlert("Perangkat anda terdeteksi memiliki aplikasi lokasi palsu!")
+                }else{
+                    getWorktime()
+                }
             }
             binding.profil.id->{
                 startActivity(Intent(applicationContext, ProfileActivity::class.java))
@@ -561,6 +569,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
         return false
     }
+
+    fun isMockSettingsON(): Boolean = if (Settings.Secure.getString(contentResolver, Settings.Secure.ALLOW_MOCK_LOCATION).equals("0")) false else true
 
     private fun resizeImage(_uri: Uri) : Uri {
         var _bitmap = MediaStore.Images.Media.getBitmap(contentResolver, _uri)

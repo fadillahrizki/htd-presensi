@@ -1,7 +1,9 @@
 package com.htd.presensi.activity
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings.Secure
 import android.telephony.TelephonyManager
@@ -9,6 +11,8 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityLoginBinding
@@ -25,17 +29,33 @@ import java.security.AccessController.getContext
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var binding: ActivityLoginBinding
     lateinit var mApiInterface: ApiInterface
+    var REQUEST_PERMISSIONS = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.getRoot())
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         binding.btnLogin.setOnClickListener(this)
+        requestPermissions()
     }
 
     override fun onClick(view: View) {
         when (view.id) {
             binding.btnLogin.id -> login()
+        }
+    }
+
+    fun requestPermissions(){
+        var pers = arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA)
+
+        if (
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, pers, REQUEST_PERMISSIONS)
         }
     }
 

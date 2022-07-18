@@ -3,9 +3,8 @@ package com.htd.presensi.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.app.PendingIntent
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.location.Location
@@ -25,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.htd.presensi.BuildConfig
@@ -33,6 +33,8 @@ import com.htd.presensi.databinding.ActivityMainBinding
 import com.htd.presensi.models.WorktimeItem
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
+import com.htd.presensi.services.GPS_Service
+import com.htd.presensi.services.GpsService
 import com.htd.presensi.util.Loading
 import com.htd.presensi.util.LocationDistance
 import com.htd.presensi.viewmodel.MainViewModel
@@ -47,7 +49,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
@@ -92,10 +93,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
 
     lateinit var worktimeDialog : Dialog
 
+    var locationReq: LocationRequest? = null
+
+    private var broadcastReceiver: BroadcastReceiver? = null
+
+    override fun onResume() {
+        super.onResume()
+        if (broadcastReceiver == null) {
+            broadcastReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent) {
+                   Log.d("GPS:", intent.extras!!["coordinates"] as String)
+                }
+            }
+        }
+        registerReceiver(broadcastReceiver, IntentFilter("location_update"))
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        locationRequest()
         init()
         observe()
         api()
@@ -133,6 +150,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     }
 
     fun init(){
+//        val i = Intent(applicationContext, GPS_Service::class.java)
+//        startService(i)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.getRoot())
 
@@ -143,6 +163,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         places = JSONTokener(userLoggedIn.getString("places",null)).nextValue() as JSONArray
         alertDialogBuilder = AlertDialog.Builder(this)
         radius = userLoggedIn.getString("radius",null)?.toDouble()
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_FINE_LOCATION)
+        }else {
+
+            fusedLocationClient.requestLocationUpdates(locationReq, getPendingIntent())
+
+        }
 
 //        if(userLoggedIn.getString("role",null) == "pegawai"){
 //            binding.absen.visibility = View.VISIBLE
@@ -359,29 +387,39 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         currentLocation = location
     }
 
+    companion object {
+        private const val PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 100
+    }
+
     fun getLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_FINE_LOCATION)
         }else{
 
             fusedLocationClient.lastLocation.addOnSuccessListener {
-                currentLocation=it
-                Log.d(packageName,currentLocation.toString())
-                if(checkLocation()) {
-                    takePicture()
+                if(it == null){
+                    showAlert("Gagal mendapatkan lokasi")
                 }else{
-                    inLocation = false
-                    alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
-                    alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
-                    alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
+                    currentLocation=it
+                    Log.d(packageName,currentLocation.toString())
+                    Log.d("LAT",currentLocation!!.latitude.toString())
+                    Log.d("LONG",currentLocation!!.longitude.toString())
+                    if(checkLocation()) {
                         takePicture()
-//                        showDialog()
-//                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
+                    }else{
+                        inLocation = false
+                        alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
+                        alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
+                        alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
+                            takePicture()
+    //                        showDialog()
+    //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
+                        }
+                        alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
+    //                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
+                        }
+                        alertDialogBuilder.show()
                     }
-                    alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
-//                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
-                    }
-                    alertDialogBuilder.show()
                 }
 
             }
@@ -559,8 +597,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
             var newLoc = Location("")
             newLoc.latitude = place.getString("lat").replace(",",".").toDouble()
             newLoc.longitude = place.getString("lng").replace(",",".").toDouble()
-            var distance = LocationDistance.betweenCoordinates(currentLocation!!,newLoc
-            )
+            var distance = LocationDistance.betweenCoordinates(currentLocation!!,newLoc)
 
             if(distance <= radius!!){
                 return true
@@ -700,5 +737,30 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
             }
         })
 
+    }
+
+    fun locationRequest() {
+        locationReq = LocationRequest()
+        locationReq!!.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        locationReq!!.setInterval(1500)
+        locationReq!!.setFastestInterval(750)
+        locationReq!!.setSmallestDisplacement(10f)
+    }
+
+    fun getPendingIntent(): PendingIntent? {
+        val intent = Intent(this, GpsService::class.java)
+        intent.action = "1"
+        return PendingIntent.getBroadcast(this, 0, intent,  PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    fun showUpdateLocation(txt: String?) {
+        Toast.makeText(this, txt, Toast.LENGTH_LONG).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver)
+        }
     }
 }

@@ -33,8 +33,6 @@ class SplashScreenActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySplashScreenBinding
     lateinit var mApiInterface: ApiInterface
 
-    var REQUEST_PERMISSIONS = 1
-
     fun getDeviceName(): String? {
         val manufacturer = Build.MANUFACTURER
         val model = Build.MODEL
@@ -45,25 +43,10 @@ class SplashScreenActivity : AppCompatActivity() {
         }
     }
 
-    fun requestPermissions(){
-        var pers = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.CAMERA)
-
-        if (
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(this, pers, REQUEST_PERMISSIONS)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashScreenBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
-
-        requestPermissions()
 
         Log.d("HP", getDeviceName()!!)
         userLoggedIn = getSharedPreferences("login_data", MODE_PRIVATE)

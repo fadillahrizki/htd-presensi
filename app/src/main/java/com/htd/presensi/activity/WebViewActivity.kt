@@ -30,7 +30,7 @@ class WebViewActivity : AppCompatActivity() {
 
         Log.d(packageName,url!!)
 
-        if(url!!.contains(".jpg") and url!!.contains(".png") and url!!.contains(".jpeg") and url!!.contains(".gif")){
+        if(url!!.contains(".jpg") or url!!.contains(".png") or url!!.contains(".jpeg") or url!!.contains(".gif")){
             webView.visibility = View.GONE
             image.visibility = View.VISIBLE
             Glide.with(this).load(url).into(image)

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.webkit.WebView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -46,6 +47,8 @@ class HistoryDetailActivity : AppCompatActivity() {
     var mainViewModel: MainViewModel = MainViewModel()
     val REQUEST_FILE_LUAR_LOKASI = 4
     val FILE_NAME = "presence.jpg"
+
+    lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,6 +101,13 @@ class HistoryDetailActivity : AppCompatActivity() {
                 binding.attachment.visibility = View.GONE
                 binding.btnAttachment.text = "Download"
                 binding.btnAttachment.visibility = View.VISIBLE
+                binding.btnView.visibility = View.VISIBLE
+
+                binding.btnView.setOnClickListener {
+                    var intent = Intent(applicationContext,WebViewActivity::class.java)
+                    intent.putExtra("data",BASE_URL+data.attachment_url)
+                    startActivity(intent)
+                }
 
                 binding.btnAttachment.setOnClickListener {
                     downloadFile(BASE_URL+data.attachment_url)
@@ -116,7 +126,14 @@ class HistoryDetailActivity : AppCompatActivity() {
                 }
             }
 
-            binding.status.text = data.worktimeItem?.capitalize()
+            if(data.type!!.contains("Cuti")){
+                binding.status.text = "Cuti"
+                binding.inLocation.text = "-"
+            }else{
+                binding.status.text = data.worktimeItem?.capitalize()
+                binding.inLocation.text = if(data.in_location == "1") "Ya" else "Tidak"
+            }
+
             binding.type.text = data.type?.capitalize() + " ("+data.status+")"
             binding.date.text = data.date+" ("+data.time+")"
             loading.hide()

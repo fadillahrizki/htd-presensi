@@ -22,7 +22,13 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val dt = data[position]
-        holder.tvStatus.text = dt.worktimeItem?.capitalize()
+        if(dt.type!!.contains("Cuti")){
+            holder.tvStatus.visibility = View.GONE
+            holder.tvInLocation.text = "-"
+        }else{
+            holder.tvStatus.text = dt.worktimeItem?.capitalize()
+            holder.tvInLocation.text = if(dt.in_location == "1") "di lokasi" else "di luar lokasi"
+        }
         holder.tvType.text = dt.type?.capitalize() + " ("+dt.status+")"
         holder.tvDate.text = dt.date
         holder.tvTime.text = dt.time
@@ -42,10 +48,12 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
         var tvType: TextView
         var tvStatus: TextView
         var tvDate: TextView
+        var tvInLocation: TextView
         var tvTime: TextView
 
         init {
             tvType = itemView.findViewById(R.id.type)
+            tvInLocation = itemView.findViewById(R.id.in_location)
             tvStatus = itemView.findViewById(R.id.status)
             tvDate = itemView.findViewById(R.id.date)
             tvTime = itemView.findViewById(R.id.time)

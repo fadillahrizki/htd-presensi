@@ -66,8 +66,8 @@ class ProfileActivity : AppCompatActivity(){
             binding.golongan.text = data.golongan
             binding.jabatan.text = data.jabatan
             binding.instansi.text = data.instansi
-            binding.atasan.text = data.atasan
-            binding.namaAtasan.text = data.namaAtasan
+//            binding.atasan.text = data.atasan
+//            binding.namaAtasan.text = data.namaAtasan
             binding.ponsel.text = data.ponsel
 
             binding.container.visibility = View.VISIBLE

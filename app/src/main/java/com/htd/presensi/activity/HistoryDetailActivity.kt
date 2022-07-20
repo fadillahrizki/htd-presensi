@@ -131,7 +131,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                 binding.inLocation.text = "-"
             }else{
                 binding.status.text = data.worktimeItem?.capitalize()
-                binding.inLocation.text = if(data.in_location == "1") "Ya" else "Tidak"
+                binding.inLocation.text = if(data.in_location == 1) "Ya" else "Tidak"
             }
 
             binding.type.text = data.type?.capitalize() + " ("+data.status+")"
@@ -173,6 +173,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                 presence.lng = data.get("lng")?.asString
                 presence.type = data.get("type").asString
                 presence.status = data.get("status").asString
+                presence.in_location = data.get("in_location").asInt
                 presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                 presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                 presence.time = SimpleDateFormat("HH:mm").format(date)
@@ -221,6 +222,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                             presence.lng = data.get("lng")?.asString
                             presence.type = data.get("type").asString
                             presence.status = data.get("status").asString
+                            presence.in_location = data.get("in_location").asInt
                             presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                             presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                             presence.time = SimpleDateFormat("HH:mm").format(date)

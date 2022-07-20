@@ -27,7 +27,7 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
             holder.tvInLocation.text = "-"
         }else{
             holder.tvStatus.text = dt.worktimeItem?.capitalize()
-            holder.tvInLocation.text = if(dt.in_location == "1") "di lokasi" else "di luar lokasi"
+            holder.tvInLocation.text = if(dt.in_location == 1) "di lokasi" else "di luar lokasi"
         }
         holder.tvType.text = dt.type?.capitalize() + " ("+dt.status+")"
         holder.tvDate.text = dt.date

@@ -7,7 +7,7 @@ data class Presence(
     var type:String? = null,
     var status:String? = null,
     var date:String? = null,
-    var in_location:String? = null,
+    var in_location:Int? = null,
     var lat:String? = null,
     var lng:String? = null,
     var time:String? = null,

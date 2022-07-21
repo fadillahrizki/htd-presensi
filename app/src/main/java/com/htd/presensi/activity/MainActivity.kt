@@ -2,7 +2,6 @@ package com.htd.presensi.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageManager
@@ -15,8 +14,10 @@ import android.provider.OpenableColumns
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
-import android.widget.*
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -33,7 +34,6 @@ import com.htd.presensi.databinding.ActivityMainBinding
 import com.htd.presensi.models.WorktimeItem
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
-import com.htd.presensi.services.GPS_Service
 import com.htd.presensi.services.GpsService
 import com.htd.presensi.util.Loading
 import com.htd.presensi.util.LocationDistance
@@ -51,8 +51,7 @@ import retrofit2.Response
 import java.io.File
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
-    AdapterView.OnItemSelectedListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener {
 
     lateinit var binding: ActivityMainBinding
     lateinit var mApiInterface: ApiInterface
@@ -63,15 +62,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     lateinit var loading: Loading
     lateinit var places : JSONArray
     lateinit var alertDialogBuilder : AlertDialog.Builder
-    lateinit var luarLokasiBtn : Button
     lateinit var luarLokasiText : TextView
 
-    lateinit var worktimeSpinner: Spinner
-
-    lateinit var worktimesAdapter: ArrayAdapter<String>
-    var arrWorktimeItems: ArrayList<String> = ArrayList()
-    var arrWorktimeItemIds: ArrayList<String> = ArrayList()
-    var selectedWorktime = ""
     var selectedWorktimeId = ""
 
     val REQUEST_IMAGE_CAPTURE = 1
@@ -90,8 +82,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     var counts = emptyArray<Int>()
     var time = 0
     var count = "00:00:00"
-
-    lateinit var worktimeDialog : Dialog
 
     var locationReq: LocationRequest? = null
 
@@ -119,36 +109,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         listener()
     }
 
-    private fun showDialog() {
-        val dialog = Dialog(this)
-        dialog.setCancelable(false)
-        dialog.setContentView(R.layout.out_location)
-        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        luarLokasiBtn = dialog.findViewById(R.id.attachent_luar) as Button
-        luarLokasiText = dialog.findViewById(R.id.attachent_luar_text) as TextView
-        val yesBtn = dialog.findViewById(R.id.submit) as Button
-        val noBtn = dialog.findViewById(R.id.cancel) as Button
-
-        luarLokasiBtn.setOnClickListener {
-            val intent = Intent()
-                .setType("*/*")
-                .setAction(Intent.ACTION_GET_CONTENT)
-
-            startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_LUAR_LOKASI)
-        }
-
-        yesBtn.setOnClickListener {
-            takePicture()
-            dialog.dismiss()
-        }
-
-        noBtn.setOnClickListener {
-            dialog.dismiss()
-        }
-        dialog.show()
-
-    }
-
     fun init(){
 //        val i = Intent(applicationContext, GPS_Service::class.java)
 //        startService(i)
@@ -167,23 +127,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_FINE_LOCATION)
         }else {
-
             fusedLocationClient.requestLocationUpdates(locationReq, getPendingIntent())
-
         }
-
-//        if(userLoggedIn.getString("role",null) == "pegawai"){
-//            binding.absen.visibility = View.VISIBLE
-//            binding.history.visibility = View.VISIBLE
-//        }else if(userLoggedIn.getString("role",null) == "kasubagumum"){
-//            binding.izinKerja.visibility = View.VISIBLE
-//            binding.sakit.visibility = View.VISIBLE
-//        }
-
-//        worktimeDialog = Dialog(this)
-//        worktimeDialog.setContentView(R.layout.worktime)
-//        worktimeDialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-//        worktimeSpinner = worktimeDialog.findViewById(R.id.worktime_spinner) as Spinner
 
         binding.name.text = "Hai, "+userLoggedIn.getString("name",null)
 
@@ -193,22 +138,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
     }
 
     fun observe(){
-//        mainViewModel.activeWorktime.observe(this){data->
-//            if(data != null){
-//                arrWorktimeItems.add("- Pilih -")
-//                arrWorktimeItemIds.add("0")
-//                for(item in data) {
-//                    arrWorktimeItems.add(item.name!!)
-//                    arrWorktimeItemIds.add(item.id!!)
-//                }
-//
-//                worktimesAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, arrWorktimeItems)
-//                worktimesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//                worktimeSpinner.adapter = worktimesAdapter
-//
-//            }
-//        }
-
         mainViewModel.activeWorktime.observe(this){data->
             if(data != null){
                 selectedWorktimeId = data.id!!
@@ -231,17 +160,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                 time += counts[1] * 60
                 time += (counts[0] * 60) * 60
 
-                if (counts[1] >= 60 && counts[0] > 0) {
+                if (counts[1] >= 59 && counts[0] > 0) {
                     counts[0] = counts[0] + 1
-                    counts[1] = 1
+                    counts[1] = 0
                 }
 
-                if (counts[2] >= 60 && counts[1] > 0) {
+                if (counts[2] >= 59 && counts[1] > 0) {
                     counts[1] = counts[1] + 1
-                    counts[2] = 1
+                    counts[2] = 0
                 }
 
-                if (counts[0] >= 60) {
+                if (counts[0] >= 59) {
                     counts[0] = 0
                     counts[1] = 0
                     counts[2] = 0
@@ -352,49 +281,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         binding.izinKerja.setOnClickListener(this)
         binding.sakit.setOnClickListener(this)
         binding.logout.setOnClickListener(this)
-//        worktimeSpinner.setOnItemSelectedListener(this)
-//
-//        (worktimeDialog.findViewById(R.id.ok) as Button).setOnClickListener {
-//            if(selectedWorktimeId != "0"){
-//                worktimeDialog.dismiss()
-//                getLocation()
-//            }else{
-//                showAlert("Pilih Absen lebih dahulu!")
-//            }
-//        }
-//
-//        (worktimeDialog.findViewById(R.id.cancel) as Button).setOnClickListener {
-//            worktimeDialog.dismiss()
-//        }
-    }
-
-
-    override fun onItemSelected(p0: AdapterView<*>?, view: View?, idx: Int, p3: Long) {
-        when(p0?.id){
-//            worktimeSpinner.id -> {
-//                selectedWorktime = arrWorktimeItems[idx]
-//                selectedWorktimeId = arrWorktimeItemIds[idx]
-////                worktimeDialog.dismiss()
-//            }
-        }
-    }
-
-    override fun onNothingSelected(p0: AdapterView<*>?) {
-        TODO("Not yet implemented")
     }
 
     override fun onLocationChanged(location: Location) {
         currentLocation = location
     }
 
-    companion object {
-        private const val PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 100
-    }
-
     fun getLocation() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_FINE_LOCATION)
         }else{
+
+            fusedLocationClient.requestLocationUpdates(locationReq, getPendingIntent())
 
             fusedLocationClient.lastLocation.addOnSuccessListener {
                 if(it == null){
@@ -410,13 +308,50 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
                         inLocation = false
                         alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
                         alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
+                        alertDialogBuilder.setNeutralButton("Lihat Lokasi"){ dialog,_->
+
+                            val alert = AlertDialog.Builder(this)
+                            alert.setTitle("Lokasi Anda")
+
+                            val wv = WebView(this)
+                            wv.settings.javaScriptEnabled = true
+                            val url = "https://maps.google.com/maps?q=${currentLocation!!.latitude},${currentLocation!!.longitude}&z=15&output=embed"
+
+                            val data = "<iframe width='100%' height='400' src='$url' allowfullscreen frameborder='0' border='0' referrerpolicy='no-referrer-when-downgrade'></iframe>"
+                            wv.loadData(data, "text/html", "UTF-8")
+                            wv.webViewClient = object : WebViewClient() {
+                                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                                    view.loadUrl(url)
+                                    return true
+                                }
+                            }
+
+                            alert.setView(wv)
+
+                            alert.setNeutralButton("Refresh") { dialog, _ ->
+                                dialog.dismiss()
+                                getLocation()
+                            }
+
+                            alert.setPositiveButton("Lanjut") { dialog, id ->
+                                dialog.dismiss()
+                                takePicture()
+                            }
+
+                            alert.setNegativeButton("Batal") { dialog, id ->
+                                dialog.dismiss()
+                            }
+
+                            alert.show()
+                        }
                         alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
+                            dialog.dismiss()
                             takePicture()
-    //                        showDialog()
     //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
                         }
                         alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
     //                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
+                            dialog.dismiss()
                         }
                         alertDialogBuilder.show()
                     }
@@ -751,10 +686,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener,
         val intent = Intent(this, GpsService::class.java)
         intent.action = "1"
         return PendingIntent.getBroadcast(this, 0, intent,  PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-    }
-
-    fun showUpdateLocation(txt: String?) {
-        Toast.makeText(this, txt, Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroy() {

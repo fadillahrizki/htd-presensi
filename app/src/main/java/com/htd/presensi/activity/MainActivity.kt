@@ -303,6 +303,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
                     Log.d("LAT",currentLocation!!.latitude.toString())
                     Log.d("LONG",currentLocation!!.longitude.toString())
                     if(checkLocation()) {
+                        inLocation = true
                         takePicture()
                     }else{
                         inLocation = false

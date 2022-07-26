@@ -231,15 +231,18 @@ class HistoryDetailActivity : AppCompatActivity() {
 
                             showAlert("Berhasil Upload")
                         }else{
-                            var jsonObject: JSONObject? = null
-                            try {
-                                jsonObject = JSONObject(response.errorBody().string())
-                                val message: String = jsonObject.getString("message")
-                                showAlert(message)
-//                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
-                            } catch (e: JSONException) {
-                                e.printStackTrace()
-                            }
+
+                            showAlert("Upload Gagal! File Melebihi 1MB")
+//
+//                            var jsonObject: JSONObject? = null
+//                            try {
+//                                jsonObject = JSONObject(response.errorBody().string())
+//                                val message: String = jsonObject.getString("message")
+//                                showAlert(message)
+////                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
+//                            } catch (e: JSONException) {
+//                                e.printStackTrace()
+//                            }
                         }
                         Log.d(packageName, response.raw().toString())
                         loading.hide()

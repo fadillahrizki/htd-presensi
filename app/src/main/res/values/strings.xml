@@ -46,4 +46,6 @@
     <string name="tanggal_absen">Tanggal Absen</string>
     <string name="absen">Absen</string>
     <string name="di_lokasi">Di lokasi</string>
+    <string name="tanggal_selesai">Tanggal Selesai</string>
+    <string name="tanggal_mulai">Tanggal Mulai</string>
 </resources>

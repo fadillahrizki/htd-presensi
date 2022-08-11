@@ -1,6 +1,7 @@
 package com.htd.presensi.activity
 
 import android.app.Dialog
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -69,6 +70,7 @@ class ProfileActivity : AppCompatActivity(){
 //            binding.atasan.text = data.atasan
 //            binding.namaAtasan.text = data.namaAtasan
             binding.ponsel.text = data.ponsel
+            binding.email.text = data.email
 
             binding.container.visibility = View.VISIBLE
             loading.hide()
@@ -80,7 +82,11 @@ class ProfileActivity : AppCompatActivity(){
     }
 
     fun listener(){
-
+        binding.btnChangePassword.setOnClickListener {
+            val intent = Intent(applicationContext, ChangePasswordActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
     }
 
     fun getData() {
@@ -97,6 +103,7 @@ class ProfileActivity : AppCompatActivity(){
 
                     var profile = Profile()
                     profile.nama = if (data.get("name") != null) data.get("name").asString else "-"
+                    profile.email = if (data.get("email") != null) data.get("email").asString else "-"
                     profile.nip = if (data.get("nip") != null) data.get("nip").asString else "-"
                     profile.golongan =
                         if (data.get("group") != null) data.get("group").asString else "-"
@@ -124,11 +131,13 @@ class ProfileActivity : AppCompatActivity(){
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
+                    loading.hide()
                 }
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {
                 Log.d(packageName, t.toString())
+                loading.hide()
             }
         })
     }

@@ -9,4 +9,5 @@ data class Profile(
     var atasan: String? = null,
     var namaAtasan: String? = null,
     var ponsel: String? = null,
+    var email: String? = null,
 )

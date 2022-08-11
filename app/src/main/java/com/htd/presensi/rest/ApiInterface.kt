@@ -14,6 +14,20 @@ interface ApiInterface {
         @Field("device_number") deviceNumber: String,
     ): Call<Any>
 
+    @FormUrlEncoded
+    @POST("auth/forgot-password")
+    fun forgotPassword(
+        @Field("email") email: String
+    ): Call<Any>
+
+    @FormUrlEncoded
+    @POST("auth/change-password")
+    fun changePassword(
+        @Header("authorization") token : String,
+        @Field("password") password: String,
+        @Field("password_confirmation") password_confirmation: String,
+    ): Call<Any>
+
     @GET("employees/{id}")
     fun profile(@Header("authorization") token : String,@Path("id") id:String): Call<Any>
 

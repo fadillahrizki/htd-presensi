@@ -57,6 +57,13 @@
             android:name=".activity.HistoryActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.ChangePasswordActivity"
+            android:exported="false" />
+        <activity
+            android:theme="@style/Theme.Presensi.NoActionBar"
+            android:name=".activity.ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Presensi.NoActionBar" />

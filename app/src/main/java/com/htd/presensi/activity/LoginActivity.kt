@@ -37,11 +37,18 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         binding.btnLogin.setOnClickListener(this)
         requestPermissions()
+
+        binding.forgotPassword.setOnClickListener(this)
     }
 
     override fun onClick(view: View) {
         when (view.id) {
             binding.btnLogin.id -> login()
+            binding.forgotPassword.id -> {
+                val intent = Intent(applicationContext, ForgotPasswordActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+            }
         }
     }
 

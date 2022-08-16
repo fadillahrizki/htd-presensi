@@ -28,6 +28,13 @@ interface ApiInterface {
         @Field("password_confirmation") password_confirmation: String,
     ): Call<Any>
 
+    @FormUrlEncoded
+    @POST("auth/change-email")
+    fun changeEmail(
+        @Header("authorization") token : String,
+        @Field("email") Email: String
+    ): Call<Any>
+
     @GET("employees/{id}")
     fun profile(@Header("authorization") token : String,@Path("id") id:String): Call<Any>
 

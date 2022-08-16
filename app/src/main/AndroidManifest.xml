@@ -60,6 +60,9 @@
             android:name=".activity.ChangePasswordActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.ChangeEmailActivity"
+            android:exported="false" />
+        <activity
             android:theme="@style/Theme.Presensi.NoActionBar"
             android:name=".activity.ForgotPasswordActivity"
             android:exported="false" />

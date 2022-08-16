@@ -87,6 +87,11 @@ class ProfileActivity : AppCompatActivity(){
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
+        binding.btnChangeEmail.setOnClickListener {
+            val intent = Intent(applicationContext, ChangeEmailActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+        }
     }
 
     fun getData() {

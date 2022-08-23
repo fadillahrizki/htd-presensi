@@ -32,6 +32,7 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
         holder.tvType.text = dt.type?.capitalize() + " ("+dt.status+")"
         holder.tvDate.text = dt.date
         holder.tvTime.text = dt.time
+        holder.tvTimeLeft.text = dt.time_left
 
         holder.itemView.setOnClickListener {
             var intent = Intent(context, HistoryDetailActivity::class.java)
@@ -50,6 +51,7 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
         var tvDate: TextView
         var tvInLocation: TextView
         var tvTime: TextView
+        var tvTimeLeft: TextView
 
         init {
             tvType = itemView.findViewById(R.id.type)
@@ -57,6 +59,7 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
             tvStatus = itemView.findViewById(R.id.status)
             tvDate = itemView.findViewById(R.id.date)
             tvTime = itemView.findViewById(R.id.time)
+            tvTimeLeft = itemView.findViewById(R.id.time_left)
         }
     }
 }

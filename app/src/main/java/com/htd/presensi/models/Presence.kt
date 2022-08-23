@@ -14,4 +14,5 @@ data class Presence(
     var started_at:String? = null,
     var finished_at:String? = null,
     var worktimeItem:String? = null,
+    var time_left:String? = null,
 )

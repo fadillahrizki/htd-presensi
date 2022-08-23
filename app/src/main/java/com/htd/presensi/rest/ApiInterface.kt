@@ -39,7 +39,7 @@ interface ApiInterface {
     fun profile(@Header("authorization") token : String,@Path("id") id:String): Call<Any>
 
     @GET("employees/{id}/presences")
-    fun getPresences(@Header("authorization") token : String,@Path("id") id: String,@Query("type") type:String,@Query("status") status:String, @Query("from_date") fromDate:String, @Query("to_date") toDate: String): Call<Any>
+    fun getPresences(@Header("authorization") token : String,@Path("id") id: String,@Query("type") type:String,@Query("status") status:String, @Query("date_from") fromDate:String, @Query("date_to") toDate: String): Call<Any>
 
     @Multipart
     @POST("employees/{id}/presences")
@@ -72,5 +72,8 @@ interface ApiInterface {
 
     @GET("employees/{id}/presences/check_if_exists/{worktime_item_id}")
     fun checkIfExists(@Header("authorization") token : String,@Path("id") id: String,@Path("worktime_item_id") worktime_item_id: String,): Call<Any>
+
+    @GET("employees/reports/{workunit_id}")
+    fun reports(@Header("authorization") token : String,@Path("workunit_id") workunit_id: String,@Query("date_start") dateStart:String, @Query("date_end") dateEnd: String,@Query("keyword") name:String): Call<Any>
 
 }

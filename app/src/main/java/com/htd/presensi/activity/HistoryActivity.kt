@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import com.htd.presensi.adapter.HistoryAdapter
 import com.htd.presensi.databinding.ActivityHistoryBinding
 import com.htd.presensi.models.Presence
+import com.htd.presensi.models.Report
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import com.htd.presensi.util.CustomDatePickerDialog
@@ -23,7 +24,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class HistoryActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemSelectedListener {
@@ -96,6 +96,15 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
             historyAdapter.notifyDataSetChanged()
             loading.hide()
         }
+
+        mainViewModel.reports.observe(this) { data ->
+            binding.hadir.text = data.hadir
+            binding.alfa.text = data.alfa
+            binding.cuti.text = data.cuti
+            binding.hariKerja.text = data.hari_kerja
+            binding.waktuTelat.text = data.waktu_telat
+            binding.persentase.text = data.persentase
+        }
     }
 
     fun api(){
@@ -121,6 +130,8 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                 var res = Gson().toJsonTree(response.body()).asJsonObject
                 var data = res.getAsJsonObject("data")
 
+                Log.d("histories",data.toString())
+
 
                 val presences = data.getAsJsonArray("presences")
 
@@ -144,11 +155,73 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                     presence.time = SimpleDateFormat("HH:mm").format(date)
 
+                    if(obj.get("worktime_item") != null){
+
+                        var worktimeItem = obj.get("worktime_item").asJsonObject
+                        val on_time_start = SimpleDateFormat("HH:mm").parse(worktimeItem.get("on_time_start").asString)
+                        val on_time_end = SimpleDateFormat("HH:mm").parse(worktimeItem.get("on_time_end").asString)
+                        val now = SimpleDateFormat("HH:mm").parse(presence.time)
+
+                        var time_left = ""
+
+                        // terlalu cepat
+                        if(now < on_time_start)
+                        {
+                            val diff: Long = now.getTime() - on_time_start.getTime()
+                            val seconds = diff / 1000
+                            val minutes = seconds / 60
+                            time_left = "Terlalu Cepat "+minutes.toString()+" Menit"
+                        }else if(now > on_time_end)
+                        {
+                            val diff: Long = now.getTime() - on_time_end.getTime()
+                            val seconds = diff / 1000
+                            val minutes = seconds / 60
+                            time_left = "Terlambat "+minutes.toString()+" Menit"
+                        }else{
+                            time_left = "Tepat Waktu"
+                        }
+
+                        presence.time_left = time_left
+                    }
+
                     arrPresences.add(presence)
                 }
 
                 mainViewModel.histories.postValue(arrPresences)
 
+            }
+
+            override fun onFailure(call: Call<Any>, t: Throwable) {
+                Log.d(packageName, t.toString())
+            }
+        })
+
+        mApiInterface.reports(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("workunit_id",null)!!,start,end,userLoggedIn.getString("name",null)!!).enqueue(object : Callback<Any> {
+            override fun onResponse(
+                call: Call<Any>,
+                response: Response<Any>
+            ) {
+                var res = Gson().toJsonTree(response.body()).asJsonObject
+                var dt = res.getAsJsonObject("data")
+                var data = dt.getAsJsonArray("data")
+                var report = Report()
+                if(data.size() > 0){
+                    report.hadir = data.get(0).asJsonObject.get("hadir").asInt.toString()
+                    report.alfa = data.get(0).asJsonObject.get("alfa").asInt.toString()
+                    report.cuti = data.get(0).asJsonObject.get("cuti").asInt.toString()
+                    report.hari_kerja = data.get(0).asJsonObject.get("hari_kerja").asInt.toString()
+                    report.waktu_telat = data.get(0).asJsonObject.get("time_left").asInt.toString()
+                    report.persentase = data.get(0).asJsonObject.get("presentase").asString
+                }else{
+                    report.hadir = "0"
+                    report.alfa = "0"
+                    report.cuti = "0"
+                    report.hari_kerja = "0"
+                    report.waktu_telat = "0"
+                    report.persentase = "0%"
+                }
+                mainViewModel.reports.postValue(report)
+                Log.d("reports",data.toString())
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {

@@ -121,6 +121,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
                         editor.putString("id", userData.get("id").asString)
                         editor.putString("name", employeeData.get("name").asString)
+                        editor.putString("workunit_id", employeeData.get("workunit_id").asString)
                         editor.putString("email", userData.get("email").asString)
                         editor.putString("password", password)
                         editor.putString("role", userData.get("role").asString)

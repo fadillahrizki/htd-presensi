@@ -170,13 +170,13 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                             val diff: Long = now.getTime() - on_time_start.getTime()
                             val seconds = diff / 1000
                             val minutes = seconds / 60
-                            time_left = "Terlalu Cepat "+minutes.toString()+" Menit"
+                            time_left = "Sebelum Waktu "+minutes.toString()+" Menit"
                         }else if(now > on_time_end)
                         {
                             val diff: Long = now.getTime() - on_time_end.getTime()
                             val seconds = diff / 1000
                             val minutes = seconds / 60
-                            time_left = "Terlambat "+minutes.toString()+" Menit"
+                            time_left = "Keterlambatan "+minutes.toString()+" Menit"
                         }else{
                             time_left = "Tepat Waktu"
                         }

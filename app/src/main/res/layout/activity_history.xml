@@ -17,151 +17,233 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            android:columnCount="2">
+            android:columnCount="3">
 
-            <RelativeLayout
-                android:orientation="horizontal"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_margin="6dp"
-                android:layout_height="wrap_content">
+                app:cardCornerRadius="8dp">
 
-                <TextView
-                    android:layout_alignParentLeft="true"
-                    android:text="Hadir"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/hadir"
-                    android:layout_alignParentRight="true"
-                    android:text="0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/hadir"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="0"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
 
-            </RelativeLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hadir"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_color"/>
 
-            <RelativeLayout
-                android:orientation="horizontal"
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_margin="6dp"
-                android:layout_height="wrap_content">
+                app:cardCornerRadius="8dp">
 
-                <TextView
-                    android:layout_alignParentLeft="true"
-                    android:text="Alfa"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/alfa"
-                    android:layout_alignParentRight="true"
-                    android:text="0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/alfa"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="0"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
 
-            </RelativeLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Alfa"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_color"/>
 
-            <RelativeLayout
-                android:orientation="horizontal"
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_margin="6dp"
-                android:layout_height="wrap_content">
+                app:cardCornerRadius="8dp">
 
-                <TextView
-                    android:layout_alignParentLeft="true"
-                    android:text="Cuti"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/cuti"
-                    android:layout_alignParentRight="true"
-                    android:text="0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/cuti"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="0"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
 
-            </RelativeLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cuti"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_color"/>
 
-            <RelativeLayout
-                android:orientation="horizontal"
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_margin="6dp"
-                android:layout_height="wrap_content">
+                app:cardCornerRadius="8dp">
 
-                <TextView
-                    android:layout_alignParentLeft="true"
-                    android:text="Hari Kerja"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/hari_kerja"
-                    android:layout_alignParentRight="true"
-                    android:text="0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/hari_kerja"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="0"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
 
-            </RelativeLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hari Kerja"
+                        android:textAlignment="center"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_color"/>
 
-            <RelativeLayout
-                android:orientation="horizontal"
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_margin="6dp"
-                android:layout_height="wrap_content">
+                app:cardCornerRadius="8dp">
 
-                <TextView
-                    android:layout_alignParentLeft="true"
-                    android:text="Waktu Telat (Menit)"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/waktu_telat"
-                    android:layout_alignParentRight="true"
-                    android:text="0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/waktu_telat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="0"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
 
-            </RelativeLayout>
+                    <TextView
+                        android:id="@+id/waktu_telat_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kekurangan Waktu"
+                        android:textAlignment="center"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_color"/>
 
-            <RelativeLayout
-                android:orientation="horizontal"
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
                 android:layout_margin="6dp"
-                android:layout_height="wrap_content">
+                app:cardCornerRadius="8dp">
 
-                <TextView
-                    android:layout_alignParentLeft="true"
-                    android:text="Persentase"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/persentase"
-                    android:layout_alignParentRight="true"
-                    android:text="0%"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/persentase"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="0%"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
 
-            </RelativeLayout>
+                    <TextView
+                        android:id="@+id/persentase_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:text="Persentase Kekurangan"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_color"/>
+
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
 
         </GridLayout>
 

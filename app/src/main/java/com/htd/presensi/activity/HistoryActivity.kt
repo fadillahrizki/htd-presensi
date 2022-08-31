@@ -140,7 +140,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
 
                 for(p in presences){
                     val obj = p.asJsonObject
-                    val date = sdf.parse(obj.get("created_at").asString)
+                    val date = sdf.parse(obj.get("date").asString)
 
                     var presence = Presence()
                     presence.id = obj.get("id").asString
@@ -153,30 +153,20 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     presence.status = obj.get("status").asString
                     presence.worktimeItem = if(obj.get("worktime_item") != null) obj.get("worktime_item").asJsonObject.get("name").asString else ""
                     presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
-                    presence.time = SimpleDateFormat("HH:mm").format(date)
+                    presence.time = obj.get("time").asString
 
-                    if(obj.get("worktime_item") != null){
+                    if(obj.get("time_left") != null){
 
-                        var worktimeItem = obj.get("worktime_item").asJsonObject
-                        val on_time_start = SimpleDateFormat("HH:mm").parse(worktimeItem.get("on_time_start").asString)
-                        val on_time_end = SimpleDateFormat("HH:mm").parse(worktimeItem.get("on_time_end").asString)
-                        val now = SimpleDateFormat("HH:mm").parse(presence.time)
-
+                        var time_left_int = obj.get("time_left").asInt
                         var time_left = ""
 
                         // terlalu cepat
-                        if(now < on_time_start)
+                        if(time_left_int < 0)
                         {
-                            val diff: Long = now.getTime() - on_time_start.getTime()
-                            val seconds = diff / 1000
-                            val minutes = seconds / 60
-                            time_left = "Sebelum Waktu "+minutes.toString()+" Menit"
-                        }else if(now > on_time_end)
+                            time_left = "Sebelum Waktu "+time_left_int+" Menit"
+                        }else if(time_left_int > 0)
                         {
-                            val diff: Long = now.getTime() - on_time_end.getTime()
-                            val seconds = diff / 1000
-                            val minutes = seconds / 60
-                            time_left = "Keterlambatan "+minutes.toString()+" Menit"
+                            time_left = "Keterlambatan "+time_left_int+" Menit"
                         }else{
                             time_left = "Tepat Waktu"
                         }

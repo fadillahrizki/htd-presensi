@@ -169,7 +169,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                 var data = res.getAsJsonObject("data")
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-                val date = sdf.parse(data.get("created_at").asString)
+                val date = sdf.parse(data.get("date").asString)
                 val startedAt = if(data.get("started_at") != null) sdf.parse(data.get("started_at").asString) else null
                 val finishedAt = if(data.get("finished_at") != null) sdf.parse(data.get("finished_at").asString) else null
 
@@ -184,7 +184,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                 presence.in_location = data.get("in_location").asInt
                 presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                 presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
-                presence.time = SimpleDateFormat("HH:mm").format(date)
+                presence.time = data.get("time")?.asString
                 presence.started_at = if(startedAt != null) SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(startedAt) else null
                 presence.finished_at = if(finishedAt != null) SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(finishedAt) else null
 
@@ -237,7 +237,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                             presence.in_location = data.get("in_location").asInt
                             presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                             presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
-                            presence.time = SimpleDateFormat("HH:mm").format(date)
+                            presence.time = data.get("time")?.asString
                             presence.started_at = if(startedAt != null) SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(startedAt) else null
                             presence.finished_at = if(finishedAt != null) SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(finishedAt) else null
 

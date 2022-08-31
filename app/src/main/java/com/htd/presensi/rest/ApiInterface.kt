@@ -76,4 +76,7 @@ interface ApiInterface {
     @GET("employees/reports/{workunit_id}")
     fun reports(@Header("authorization") token : String,@Path("workunit_id") workunit_id: String,@Query("date_start") dateStart:String, @Query("date_end") dateEnd: String,@Query("keyword") name:String): Call<Any>
 
+    @GET("employees/report-details/{workunit_id}")
+    fun reportDetails(@Header("authorization") token : String,@Path("workunit_id") workunit_id: String,@Query("date_start") dateStart:String, @Query("date_end") dateEnd: String,@Query("keyword") name:String): Call<Any>
+
 }

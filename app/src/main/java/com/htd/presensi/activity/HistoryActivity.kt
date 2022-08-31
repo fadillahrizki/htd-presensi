@@ -136,7 +136,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                 val presences = data.getAsJsonArray("presences")
 
                 var arrPresences = ArrayList<Presence>()
-                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                val sdf = SimpleDateFormat("yyyy-MM-dd")
 
                 for(p in presences){
                     val obj = p.asJsonObject
@@ -149,11 +149,11 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     presence.lat = obj.get("lat")?.asString
                     presence.lng = obj.get("lng")?.asString
                     presence.type = obj.get("type").asString
-                    presence.in_location = obj.get("in_location").asInt
+                    presence.in_location = obj.get("in_location").asBoolean
                     presence.status = obj.get("status").asString
                     presence.worktimeItem = if(obj.get("worktime_item") != null) obj.get("worktime_item").asJsonObject.get("name").asString else ""
                     presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
-                    presence.time = obj.get("time").asString
+                    presence.time = obj.get("time")?.asString
 
                     if(obj.get("time_left") != null){
 

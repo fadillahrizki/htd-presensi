@@ -183,6 +183,57 @@ tools:context=".activity.HistoryDetailActivity">
             android:layout_marginBottom="20dp">
 
             <TextView
+                android:text="@string/time_left"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/time_left"
+                android:text="-"
+                android:textSize="16sp"
+                android:textColor="@color/text_color"
+                android:layout_marginBottom="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:text="@string/persentase"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/persentase"
+                android:text="-"
+                android:textSize="16sp"
+                android:textColor="@color/text_color"
+                android:layout_marginBottom="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:id="@+id/tv_time_left"
                 android:text="@string/lampiran"
                 android:textSize="16sp"
                 android:textColor="@color/black"

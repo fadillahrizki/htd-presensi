@@ -57,4 +57,6 @@
     <string name="masukkan_email_nip">Masukkan Email / NIP</string>
     <string name="lupa_password">Lupa Password ?</string>
     <string name="login">Login</string>
+    <string name="time_left">Keterlambatan</string>
+    <string name="persentase">Persentase</string>
 </resources>

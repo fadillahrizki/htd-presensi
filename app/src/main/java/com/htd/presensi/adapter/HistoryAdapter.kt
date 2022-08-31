@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.htd.presensi.R
 import com.htd.presensi.activity.HistoryDetailActivity
@@ -27,17 +28,21 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
             holder.tvInLocation.text = "-"
         }else{
             holder.tvStatus.text = dt.worktimeItem?.capitalize()
-            holder.tvInLocation.text = if(dt.in_location == 1) "di lokasi" else "di luar lokasi"
+            holder.tvInLocation.text = if(dt.time == "false") "" else if(dt.in_location!!) "di lokasi" else "di luar lokasi"
         }
-        holder.tvType.text = dt.type?.capitalize() + " ("+dt.status+")"
+        holder.tvType.text = dt.type?.capitalize() + if(dt.status == "false") "" else " ("+dt.status+")"
         holder.tvDate.text = dt.date
-        holder.tvTime.text = dt.time
+        holder.tvTime.text = if(dt.time == "false") "" else dt.time
         holder.tvTimeLeft.text = dt.time_left
 
         holder.itemView.setOnClickListener {
-            var intent = Intent(context, HistoryDetailActivity::class.java)
-            intent.putExtra("employee_presence_id",dt.id)
-            context.startActivity(intent)
+            if(dt.time != "false"){
+                var intent = Intent(context, HistoryDetailActivity::class.java)
+                intent.putExtra("employee_presence_id",dt.id)
+                context.startActivity(intent)
+            }else{
+                Toast.makeText(context,"Tidak ada data!",Toast.LENGTH_LONG).show()
+            }
         }
     }
 

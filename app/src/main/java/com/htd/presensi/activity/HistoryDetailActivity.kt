@@ -137,9 +137,11 @@ class HistoryDetailActivity : AppCompatActivity() {
                 binding.llEnd.visibility = View.VISIBLE
             }else{
                 binding.status.text = data.worktimeItem?.capitalize()
-                binding.inLocation.text = if(data.in_location == 1) "Ya" else "Tidak"
+                binding.inLocation.text = if(data.in_location!!) "Ya" else "Tidak"
             }
 
+            binding.timeLeft.text = data.time_left
+            binding.persentase.text = data.persentase
             binding.type.text = data.type?.capitalize() + " ("+data.status+")"
             binding.date.text = data.date+" ("+data.time+")"
             loading.hide()
@@ -169,7 +171,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                 var data = res.getAsJsonObject("data")
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-                val date = sdf.parse(data.get("date").asString)
+                val date = sdf.parse(data.get("created_at").asString)
                 val startedAt = if(data.get("started_at") != null) sdf.parse(data.get("started_at").asString) else null
                 val finishedAt = if(data.get("finished_at") != null) sdf.parse(data.get("finished_at").asString) else null
 
@@ -181,12 +183,34 @@ class HistoryDetailActivity : AppCompatActivity() {
                 presence.lng = data.get("lng")?.asString
                 presence.type = data.get("type").asString
                 presence.status = data.get("status").asString
-                presence.in_location = data.get("in_location").asInt
+                presence.in_location = data.get("in_location").asBoolean
                 presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                 presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
-                presence.time = data.get("time")?.asString
+                presence.time = SimpleDateFormat("HH:mm").format(date)
                 presence.started_at = if(startedAt != null) SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(startedAt) else null
                 presence.finished_at = if(finishedAt != null) SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(finishedAt) else null
+
+                if(data.get("time_left") != null){
+
+                    var time_left_int = data.get("time_left").asInt
+                    var time_left = ""
+
+                    // terlalu cepat
+                    if(time_left_int < 0)
+                    {
+                        binding.tvTimeLeft.text = "Sebelum Waktu"
+                        time_left = "${time_left_int} Menit"
+                    }else if(time_left_int > 0)
+                    {
+                        binding.tvTimeLeft.text = "Keterlambatan"
+                        time_left = "${time_left_int} Menit"
+                    }else{
+                        time_left = "-"
+                    }
+
+                    presence.time_left = time_left
+                    presence.persentase = data.get("presentase").asString
+                }
 
                 mainViewModel.historyDetail.postValue(presence)
 
@@ -234,12 +258,34 @@ class HistoryDetailActivity : AppCompatActivity() {
                             presence.lng = data.get("lng")?.asString
                             presence.type = data.get("type").asString
                             presence.status = data.get("status").asString
-                            presence.in_location = data.get("in_location").asInt
+                            presence.in_location = data.get("in_location").asBoolean
                             presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                             presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
-                            presence.time = data.get("time")?.asString
+                            presence.time = SimpleDateFormat("HH:mm").format(date)
                             presence.started_at = if(startedAt != null) SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(startedAt) else null
                             presence.finished_at = if(finishedAt != null) SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(finishedAt) else null
+
+                            if(data.get("time_left") != null){
+
+                                var time_left_int = data.get("time_left").asInt
+                                var time_left = ""
+
+                                // terlalu cepat
+                                if(time_left_int < 0)
+                                {
+                                    binding.tvTimeLeft.text = "Sebelum Waktu"
+                                    time_left = "${time_left_int} Menit"
+                                }else if(time_left_int > 0)
+                                {
+                                    binding.tvTimeLeft.text = "Keterlambatan"
+                                    time_left = "${time_left_int} Menit"
+                                }else{
+                                    time_left = "-"
+                                }
+
+                                presence.time_left = time_left
+                                presence.persentase = data.get("presentase").asString
+                            }
 
                             mainViewModel.historyDetail.postValue(presence)
 

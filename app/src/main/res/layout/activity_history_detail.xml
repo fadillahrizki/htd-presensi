@@ -183,6 +183,7 @@ tools:context=".activity.HistoryDetailActivity">
             android:layout_marginBottom="20dp">
 
             <TextView
+                android:id="@+id/tv_time_left"
                 android:text="@string/time_left"
                 android:textSize="16sp"
                 android:textColor="@color/black"
@@ -233,7 +234,6 @@ tools:context=".activity.HistoryDetailActivity">
             android:layout_marginBottom="20dp">
 
             <TextView
-                android:id="@+id/tv_time_left"
                 android:text="@string/lampiran"
                 android:textSize="16sp"
                 android:textColor="@color/black"

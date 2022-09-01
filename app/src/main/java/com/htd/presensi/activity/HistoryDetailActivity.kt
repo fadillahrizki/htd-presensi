@@ -171,6 +171,8 @@ class HistoryDetailActivity : AppCompatActivity() {
                 var data = res.getAsJsonObject("data")
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
+                Log.d("DATA",data.toString())
+
                 val date = sdf.parse(data.get("created_at").asString)
                 val startedAt = if(data.get("started_at") != null) sdf.parse(data.get("started_at").asString) else null
                 val finishedAt = if(data.get("finished_at") != null) sdf.parse(data.get("finished_at").asString) else null
@@ -183,7 +185,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                 presence.lng = data.get("lng")?.asString
                 presence.type = data.get("type").asString
                 presence.status = data.get("status").asString
-                presence.in_location = data.get("in_location").asBoolean
+                presence.in_location = if(data.get("in_location").asInt == 1) true else false
                 presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                 presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                 presence.time = SimpleDateFormat("HH:mm").format(date)
@@ -258,7 +260,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                             presence.lng = data.get("lng")?.asString
                             presence.type = data.get("type").asString
                             presence.status = data.get("status").asString
-                            presence.in_location = data.get("in_location").asBoolean
+                            presence.in_location = if(data.get("in_location").asInt == 1) true else false
                             presence.worktimeItem = if(data.get("worktime_item") != null) data.get("worktime_item").asJsonObject.get("name").asString else ""
                             presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                             presence.time = SimpleDateFormat("HH:mm").format(date)
@@ -271,11 +273,11 @@ class HistoryDetailActivity : AppCompatActivity() {
                                 var time_left = ""
 
                                 // terlalu cepat
-                                if(time_left_int < 0)
+                                if(presence.worktimeItem == "Pulang")
                                 {
                                     binding.tvTimeLeft.text = "Sebelum Waktu"
                                     time_left = "${time_left_int} Menit"
-                                }else if(time_left_int > 0)
+                                }else if(presence.worktimeItem == "Masuk")
                                 {
                                     binding.tvTimeLeft.text = "Keterlambatan"
                                     time_left = "${time_left_int} Menit"

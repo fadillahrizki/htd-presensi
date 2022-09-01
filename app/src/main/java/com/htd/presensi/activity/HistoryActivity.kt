@@ -154,6 +154,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     presence.worktimeItem = if(obj.get("worktime_item") != null) obj.get("worktime_item").asJsonObject.get("name").asString else ""
                     presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                     presence.time = obj.get("time")?.asString
+                    presence.persentase = obj.get("presentase")?.asString
 
                     if(obj.get("time_left") != null){
 
@@ -161,12 +162,12 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                         var time_left = ""
 
                         // terlalu cepat
-                        if(time_left_int < 0)
+                        if(presence.worktimeItem == "Masuk")
                         {
-                            time_left = "Sebelum Waktu "+time_left_int+" Menit"
-                        }else if(time_left_int > 0)
+                            time_left = "Keterlambatan "+time_left_int+" Menit ("+presence.persentase+"%)"
+                        }else if(presence.worktimeItem == "Pulang")
                         {
-                            time_left = "Keterlambatan "+time_left_int+" Menit"
+                            time_left = "Sebelum Waktu "+time_left_int+" Menit ("+presence.persentase+"%)"
                         }else{
                             time_left = "Tepat Waktu"
                         }

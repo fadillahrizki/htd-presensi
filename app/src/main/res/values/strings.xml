@@ -59,4 +59,6 @@
     <string name="login">Login</string>
     <string name="time_left">Keterlambatan</string>
     <string name="persentase">Persentase</string>
+    <string name="absen_teman">Absensi Teman</string>
+    <string name="tugas_luar">Tugas Luar</string>
 </resources>

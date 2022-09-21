@@ -38,6 +38,9 @@ interface ApiInterface {
     @GET("employees/{id}")
     fun profile(@Header("authorization") token : String,@Path("id") id:String): Call<Any>
 
+    @GET("employees/detail-by-nip/{nip}")
+    fun profileByNip(@Header("authorization") token : String,@Path("nip") nip:String): Call<Any>
+
     @GET("employees/{id}/presences")
     fun getPresences(@Header("authorization") token : String,@Path("id") id: String,@Query("type") type:String,@Query("status") status:String, @Query("date_from") fromDate:String, @Query("date_to") toDate: String): Call<Any>
 

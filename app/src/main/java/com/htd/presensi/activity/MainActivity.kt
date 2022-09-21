@@ -2,6 +2,7 @@ package com.htd.presensi.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageManager
@@ -14,8 +15,10 @@ import android.provider.OpenableColumns
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -27,10 +30,12 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.htd.presensi.BuildConfig
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityMainBinding
+import com.htd.presensi.models.Profile
 import com.htd.presensi.models.WorktimeItem
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
@@ -49,6 +54,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import kotlin.math.abs
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener {
@@ -56,6 +62,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
     lateinit var binding: ActivityMainBinding
     lateinit var mApiInterface: ApiInterface
     lateinit var userLoggedIn: SharedPreferences
+    lateinit var absenTeman: SharedPreferences
     lateinit var fusedLocationClient: FusedLocationProviderClient
     lateinit var photoFile: File
     lateinit var photoUri: Uri
@@ -70,6 +77,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
     val REQUEST_FILE_IZIN = 2
     val REQUEST_FILE_SAKIT = 3
     val REQUEST_FILE_LUAR_LOKASI = 4
+    val REQUEST_FILE_TUGAS_LUAR = 5
     val PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 100
     val FILE_NAME = "presence.jpg"
     var currentLocation: Location? = null
@@ -118,6 +126,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         userLoggedIn = getSharedPreferences("login_data", MODE_PRIVATE)
+        absenTeman = getSharedPreferences("absen_teman", MODE_PRIVATE)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         loading = Loading(this)
         places = JSONTokener(userLoggedIn.getString("places",null)).nextValue() as JSONArray
@@ -132,9 +141,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
         binding.name.text = "Hai, "+userLoggedIn.getString("name",null)
 
-        if(radius == null){
-            binding.absen.visibility = View.GONE
-        }
+//        if(radius == null){
+//            binding.absen.visibility = View.GONE
+//        }
     }
 
     fun observe(){
@@ -279,6 +288,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         binding.profil.setOnClickListener(this)
         binding.history.setOnClickListener(this)
         binding.izinKerja.setOnClickListener(this)
+        binding.absenTeman.setOnClickListener(this)
+        binding.tugasLuar.setOnClickListener(this)
         binding.sakit.setOnClickListener(this)
         binding.logout.setOnClickListener(this)
     }
@@ -432,6 +443,67 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         })
     }
 
+    fun openAbsenTeman(){
+        val dialog = Dialog(this)
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.absen_teman)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        var nip = dialog.findViewById(R.id.nip) as TextInputLayout
+        val yesBtn = dialog.findViewById(R.id.submit) as Button
+        val noBtn = dialog.findViewById(R.id.cancel) as Button
+
+        yesBtn.setOnClickListener {
+            profileByNip(nip.editText?.text.toString())
+            dialog.dismiss()
+        }
+
+        noBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
+
+    }
+
+    fun profileByNip(nip:String) {
+        mApiInterface.profileByNip(userLoggedIn.getString("token",null)!!,nip).enqueue(object : Callback<Any>{
+            override fun onResponse(call: Call<Any>?, response: Response<Any>) {
+                if(response.code() == 200) {
+                    Log.d(packageName, response.body().toString())
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.getAsJsonObject("data")
+                    if(data != null){
+                        var is_android_user = data.get("is_android_user").asInt
+                        if(is_android_user == 1){
+                            showAlert("Maaf! Pegawai dengan NIP ${nip} adalah pengguna Android")
+                        }else{
+                            absenTeman.edit().putString("employee_id",data.get("id").asString).apply()
+                            binding.absen.performClick()
+                        }
+                    }else {
+                        showAlert("Data Tidak Ditemukan!")
+                    }
+                }else{
+                    var jsonObject: JSONObject? = null
+                    try {
+                        jsonObject = JSONObject(response.errorBody().string())
+                        val message: String = jsonObject.getString("message")
+                        Log.d(packageName,message)
+//                        showAlert(message)
+//                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+                Log.d(packageName, response.raw().toString())
+            }
+
+            override fun onFailure(call: Call<Any>?, t: Throwable?) {
+                Log.d(packageName, t.toString())
+                showAlert("Ada Kesalahan Server")
+            }
+        })
+    }
+
     override fun onClick(view: View?) {
         when(view?.id){
             binding.absen.id->{
@@ -464,6 +536,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
                     .setAction(Intent.ACTION_GET_CONTENT)
 
                 startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_SAKIT)
+            }
+            binding.absenTeman.id->{
+                openAbsenTeman()
+            }
+            binding.tugasLuar.id->{
+                val intent = Intent()
+                    .setType("*/*")
+                    .setAction(Intent.ACTION_GET_CONTENT)
+
+                startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_TUGAS_LUAR)
             }
             binding.logout.id->{
                 userLoggedIn.edit().clear().apply()
@@ -500,6 +582,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
             if(data !=null){
                 var selectedfile: Uri = data.data!!
                 presences("izin", uriFile = selectedfile)
+            }
+        }
+
+        if(requestCode == REQUEST_FILE_TUGAS_LUAR && resultCode == RESULT_OK) {
+            if(data !=null){
+                var selectedfile: Uri = data.data!!
+                presences("tugas luar", uriFile = selectedfile)
             }
         }
 
@@ -642,7 +731,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         val inLocationBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(inLocation) inLocation.toString() else "")
         val worktimeItemId = RequestBody.create(MediaType.parse("multipart/form-data"),selectedWorktimeId)
 
-        mApiInterface.presences(userLoggedIn.getString("token",null)!!,userLoggedIn.getString("employee_id",null)!!,typeBody,attachment,latBody,lngBody,inLocationBody,pic_url,worktimeItemId).enqueue(object : Callback<Any> {
+        var employee_id = if(absenTeman.getString("employee_id",null) != null) absenTeman.getString("employee_id",null) else userLoggedIn.getString("employee_id",null)
+
+        mApiInterface.presences(userLoggedIn.getString("token",null)!!,employee_id!!,typeBody,attachment,latBody,lngBody,inLocationBody,pic_url,worktimeItemId).enqueue(object : Callback<Any> {
             override fun onResponse(
                 call: Call<Any>,
                 response: Response<Any>
@@ -650,6 +741,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
                 if(response.code() == 200){
                     Log.d(packageName, response.body().toString())
                     Toast.makeText(applicationContext,"Berhasil",Toast.LENGTH_LONG).show()
+
+                    if(absenTeman.getString("employee_id",null) != null){
+                        absenTeman.edit().clear()
+                    }
                 }else{
                     var jsonObject: JSONObject? = null
                     try {

@@ -59,12 +59,31 @@
             app:iconGravity="textStart"/>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/absen_teman"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/absen_teman"
+            app:icon="@drawable/ic_time"
+            app:iconGravity="textStart"/>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/profil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
             android:text="@string/profil"
             app:icon="@drawable/ic_person"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/tugas_luar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/tugas_luar"
+            android:visibility="gone"
+            app:icon="@drawable/ic_book"
             app:iconGravity="textStart" />
 
         <com.google.android.material.button.MaterialButton

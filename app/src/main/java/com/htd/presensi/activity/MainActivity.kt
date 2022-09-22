@@ -150,7 +150,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         mainViewModel.activeWorktime.observe(this){data->
             if(data != null){
                 selectedWorktimeId = data.id!!
-                checkIfExists()
+                if(absenTeman.getString("employee_id",null) != null){
+                    getLocation()
+                }else{
+                    checkIfExists()
+                }
             }else{
                 showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
             }

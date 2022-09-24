@@ -61,4 +61,7 @@
     <string name="persentase">Persentase</string>
     <string name="absen_teman">Absensi Teman</string>
     <string name="tugas_luar">Tugas Luar</string>
+    <string name="cuti">Cuti</string>
+    <string name="masukkan_waktu_mulai">Masukkan Waktu Mulai</string>
+    <string name="masukkan_waktu_selesai">Masukkan Waktu Selesai</string>
 </resources>

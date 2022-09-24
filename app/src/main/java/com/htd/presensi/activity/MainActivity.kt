@@ -1,4 +1,4 @@
-package com.htd.presensi.activity
+ package com.htd.presensi.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -18,9 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -35,11 +33,11 @@ import com.google.gson.Gson
 import com.htd.presensi.BuildConfig
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityMainBinding
-import com.htd.presensi.models.Profile
 import com.htd.presensi.models.WorktimeItem
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import com.htd.presensi.services.GpsService
+import com.htd.presensi.util.CustomDatePickerDialog
 import com.htd.presensi.util.Loading
 import com.htd.presensi.util.LocationDistance
 import com.htd.presensi.viewmodel.MainViewModel
@@ -54,15 +52,13 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
-import kotlin.math.abs
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener {
+ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener {
 
     lateinit var binding: ActivityMainBinding
     lateinit var mApiInterface: ApiInterface
     lateinit var userLoggedIn: SharedPreferences
-    lateinit var absenTeman: SharedPreferences
     lateinit var fusedLocationClient: FusedLocationProviderClient
     lateinit var photoFile: File
     lateinit var photoUri: Uri
@@ -70,20 +66,28 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
     lateinit var places : JSONArray
     lateinit var alertDialogBuilder : AlertDialog.Builder
     lateinit var luarLokasiText : TextView
+    lateinit var lampiranTugasLuarText : TextView
+    lateinit var lampiranCutiText : TextView
+    lateinit var cutiAdapter: ArrayAdapter<String>
 
+    var absenTemanId = ""
     var selectedWorktimeId = ""
+    var selectedCuti = ""
+
+    var cuti:ArrayList<String> = ArrayList()
 
     val REQUEST_IMAGE_CAPTURE = 1
     val REQUEST_FILE_IZIN = 2
     val REQUEST_FILE_SAKIT = 3
     val REQUEST_FILE_LUAR_LOKASI = 4
     val REQUEST_FILE_TUGAS_LUAR = 5
+    val REQUEST_FILE_CUTI = 6
     val PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 100
     val FILE_NAME = "presence.jpg"
     var currentLocation: Location? = null
     var inLocation = true
     var radius: Double? = 0.0
-    var luarLokasiUri : Uri? = null
+    var attachmentUri : Uri? = null
 
     var mainViewModel: MainViewModel = MainViewModel()
 
@@ -126,7 +130,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         userLoggedIn = getSharedPreferences("login_data", MODE_PRIVATE)
-        absenTeman = getSharedPreferences("absen_teman", MODE_PRIVATE)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         loading = Loading(this)
         places = JSONTokener(userLoggedIn.getString("places",null)).nextValue() as JSONArray
@@ -150,7 +153,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         mainViewModel.activeWorktime.observe(this){data->
             if(data != null){
                 selectedWorktimeId = data.id!!
-                if(absenTeman.getString("employee_id",null) != null){
+                if(absenTemanId != ""){
                     getLocation()
                 }else{
                     checkIfExists()
@@ -162,6 +165,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
         mainViewModel.times.observe(this){data->
             count = data
+        }
+
+        mainViewModel.paidLeaves.observe(this){data->
+            cuti = data
+            cutiAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, cuti)
+            cutiAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
         val mainHandler = Handler(Looper.getMainLooper())
@@ -202,6 +211,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
     fun api(){
         getTimes()
+        getPaidLeaves()
     }
 
     fun getWorktime(){
@@ -287,12 +297,47 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         })
     }
 
+    fun getPaidLeaves(){
+        mApiInterface.getPaidLeaves(userLoggedIn.getString("token",null)!!).enqueue(object : Callback<Any>{
+            override fun onResponse(call: Call<Any>?, response: Response<Any>) {
+                if(response.code() == 200){
+                    Log.d(packageName, response.body().toString())
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.get("data").asJsonObject
+                    var dataArr = data.get("data").asJsonArray
+                    var arrs: ArrayList<String> = ArrayList()
+                    for (i in 0 until dataArr.size()) {
+                        var dt = dataArr.get(i).asJsonObject
+                        arrs.add(dt.get("name").asString)
+                    }
+                    mainViewModel.paidLeaves.postValue(arrs)
+                }else{
+                    var jsonObject: JSONObject? = null
+                    try {
+                        jsonObject = JSONObject(response.errorBody().string())
+                        val message: String = jsonObject.getString("message")
+                        Toast.makeText(applicationContext,message,Toast.LENGTH_SHORT).show()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+                Log.d(packageName, response.body().toString())
+            }
+
+            override fun onFailure(call: Call<Any>?, t: Throwable?) {
+                Log.d(packageName, t.toString())
+            }
+
+        })
+    }
+
     fun listener(){
         binding.absen.setOnClickListener(this)
         binding.profil.setOnClickListener(this)
         binding.history.setOnClickListener(this)
         binding.izinKerja.setOnClickListener(this)
         binding.absenTeman.setOnClickListener(this)
+        binding.cuti.setOnClickListener(this)
         binding.tugasLuar.setOnClickListener(this)
         binding.sakit.setOnClickListener(this)
         binding.logout.setOnClickListener(this)
@@ -468,6 +513,132 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
     }
 
+//    Belum Selesai
+    fun openCuti(){
+
+        val dialog = Dialog(this)
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.cuti)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        var btnWaktuMulai = dialog.findViewById(R.id.btn_waktu_mulai) as Button
+        var btnWaktuSelesai = dialog.findViewById(R.id.btn_waktu_selesai) as Button
+        var btnLampiran = dialog.findViewById(R.id.btn_lampiran) as Button
+        lampiranCutiText = dialog.findViewById(R.id.tv_lampiran) as TextView
+        lampiranCutiText.text = "Pilih File Lebih Dahulu"
+
+        var tvWaktuMulai = dialog.findViewById(R.id.tv_waktu_mulai) as TextView
+        var tvWaktuSelesai = dialog.findViewById(R.id.tv_waktu_selesai) as TextView
+
+        val yesBtn = dialog.findViewById(R.id.submit) as Button
+        val noBtn = dialog.findViewById(R.id.cancel) as Button
+
+        val jenisPengajuan = dialog.findViewById(R.id.jenis_pengajuan) as Spinner
+        jenisPengajuan.adapter = cutiAdapter
+
+        jenisPengajuan.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                selectedCuti = cuti.get(position)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        })
+
+        btnLampiran.setOnClickListener {
+            val intent = Intent()
+                .setType("*/*")
+                .setAction(Intent.ACTION_GET_CONTENT)
+
+            startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_TUGAS_LUAR)
+        }
+
+        btnWaktuMulai.setOnClickListener{
+            tvWaktuMulai.text = CustomDatePickerDialog.year.toString()+"-"+(CustomDatePickerDialog.month+1).toString()+"-01"
+            CustomDatePickerDialog.show(this, dialog.findViewById(R.id.tv_waktu_mulai))
+        }
+
+        btnWaktuSelesai.setOnClickListener{
+            tvWaktuSelesai.text = CustomDatePickerDialog.year.toString()+"-"+(CustomDatePickerDialog.month+1).toString()+"-01"
+            CustomDatePickerDialog.show(this, dialog.findViewById(R.id.tv_waktu_selesai))
+        }
+
+        btnLampiran.setOnClickListener {
+            val intent = Intent()
+                .setType("*/*")
+                .setAction(Intent.ACTION_GET_CONTENT)
+
+            startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_CUTI)
+        }
+
+        yesBtn.setOnClickListener {
+            if(selectedCuti != null && attachmentUri != null && tvWaktuMulai.text.toString() != null && tvWaktuSelesai.text.toString() != null){
+                presences(selectedCuti,attachmentUri!!,tvWaktuMulai.text.toString(),tvWaktuSelesai.text.toString())
+                dialog.dismiss()
+            }else{
+                showAlert("Pilih Cuti/Tanggal/File Lebih Dulu")
+            }
+        }
+
+        noBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
+
+    }
+
+    fun openTugasLuar(){
+
+        val dialog = Dialog(this)
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.tugas_luar)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        var btnWaktuMulai = dialog.findViewById(R.id.btn_waktu_mulai) as Button
+        var btnWaktuSelesai = dialog.findViewById(R.id.btn_waktu_selesai) as Button
+        var btnLampiran = dialog.findViewById(R.id.btn_lampiran) as Button
+        lampiranTugasLuarText = dialog.findViewById(R.id.tv_lampiran) as TextView
+        lampiranTugasLuarText.text = "Pilih File Lebih Dahulu"
+
+        var tvWaktuMulai = dialog.findViewById(R.id.tv_waktu_mulai) as TextView
+        var tvWaktuSelesai = dialog.findViewById(R.id.tv_waktu_selesai) as TextView
+
+        val yesBtn = dialog.findViewById(R.id.submit) as Button
+        val noBtn = dialog.findViewById(R.id.cancel) as Button
+
+        btnWaktuMulai.setOnClickListener{
+            tvWaktuMulai.text = CustomDatePickerDialog.year.toString()+"-"+(CustomDatePickerDialog.month+1).toString()+"-"+CustomDatePickerDialog.day.toString()
+            CustomDatePickerDialog.show(this, dialog.findViewById(R.id.tv_waktu_mulai))
+        }
+
+        btnWaktuSelesai.setOnClickListener{
+            tvWaktuSelesai.text = CustomDatePickerDialog.year.toString()+"-"+(CustomDatePickerDialog.month+1).toString()+"-"+CustomDatePickerDialog.day.toString()
+            CustomDatePickerDialog.show(this, dialog.findViewById(R.id.tv_waktu_selesai))
+        }
+
+        btnLampiran.setOnClickListener {
+            val intent = Intent()
+                .setType("*/*")
+                .setAction(Intent.ACTION_GET_CONTENT)
+
+            startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_TUGAS_LUAR)
+        }
+
+        yesBtn.setOnClickListener {
+            if(attachmentUri != null && tvWaktuMulai.text.toString() != null && tvWaktuSelesai.text.toString() != null){
+                presences("tugas luar",attachmentUri!!,tvWaktuMulai.text.toString(),tvWaktuSelesai.text.toString())
+                dialog.dismiss()
+            }else{
+                showAlert("Pilih Tanggal/File Lebih Dulu")
+            }
+        }
+
+        noBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
+
+    }
+
     fun profileByNip(nip:String) {
         mApiInterface.profileByNip(userLoggedIn.getString("token",null)!!,nip).enqueue(object : Callback<Any>{
             override fun onResponse(call: Call<Any>?, response: Response<Any>) {
@@ -480,7 +651,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
                         if(is_android_user == 1){
                             showAlert("Maaf! Pegawai dengan NIP ${nip} adalah pengguna Android")
                         }else{
-                            absenTeman.edit().putString("employee_id",data.get("id").asString).apply()
+                            absenTemanId = data.get("id").asString
                             binding.absen.performClick()
                         }
                     }else {
@@ -544,12 +715,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
             binding.absenTeman.id->{
                 openAbsenTeman()
             }
+            binding.cuti.id->{
+                openCuti()
+            }
             binding.tugasLuar.id->{
-                val intent = Intent()
-                    .setType("*/*")
-                    .setAction(Intent.ACTION_GET_CONTENT)
-
-                startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_TUGAS_LUAR)
+                openTugasLuar()
             }
             binding.logout.id->{
                 userLoggedIn.edit().clear().apply()
@@ -591,8 +761,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
 
         if(requestCode == REQUEST_FILE_TUGAS_LUAR && resultCode == RESULT_OK) {
             if(data !=null){
-                var selectedfile: Uri = data.data!!
-                presences("tugas luar", uriFile = selectedfile)
+                attachmentUri = data.data!!
+                lampiranTugasLuarText.text  = getFileName(attachmentUri!!)
             }
         }
 
@@ -603,10 +773,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
             }
         }
 
+        if(requestCode == REQUEST_FILE_CUTI && resultCode == RESULT_OK) {
+            if(data !=null){
+                attachmentUri = data.data!!
+                lampiranCutiText.text  = getFileName(attachmentUri!!)
+            }
+        }
+
         if(requestCode == REQUEST_FILE_LUAR_LOKASI && resultCode == RESULT_OK) {
             if(data !=null){
-                luarLokasiUri = data.data!!
-                luarLokasiText.text  = getFileName(luarLokasiUri!!)
+                attachmentUri = data.data!!
+                luarLokasiText.text  = getFileName(attachmentUri!!)
                 luarLokasiText.visibility = View.VISIBLE
 //                presences("sakit", selectedfile)
             }
@@ -704,7 +881,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         startActivity(mapIntent)
     }
 
-    fun presences(type:String, uriFile: Uri){
+    fun presences(type:String, uriFile: Uri, waktuMulai : String? = "", waktuSelesai: String? = ""){
         loading.show()
 
         var pic_url: MultipartBody.Part? = null
@@ -719,8 +896,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         }
 
         var attachment: MultipartBody.Part? = null
-        if(luarLokasiUri != null){
-            var isLuar = contentResolver.openInputStream(luarLokasiUri!!)
+        if(attachmentUri != null){
+            var isLuar = contentResolver.openInputStream(attachmentUri!!)
 
             var imageDataLuar = isLuar?.buffered()?.use { it.readBytes() }
             var requestFileLuar = RequestBody.create(MediaType.parse("multipart/form-data"), imageDataLuar)
@@ -734,21 +911,34 @@ class MainActivity : AppCompatActivity(), View.OnClickListener,LocationListener 
         val latBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(currentLocation != null) currentLocation?.latitude.toString() else "")
         val inLocationBody = RequestBody.create(MediaType.parse("multipart/form-data"), if(inLocation) inLocation.toString() else "")
         val worktimeItemId = RequestBody.create(MediaType.parse("multipart/form-data"),selectedWorktimeId)
+        val startedAt = RequestBody.create(MediaType.parse("multipart/form-data"),waktuMulai)
+        val finishedAt = RequestBody.create(MediaType.parse("multipart/form-data"),waktuSelesai)
 
-        var employee_id = if(absenTeman.getString("employee_id",null) != null) absenTeman.getString("employee_id",null) else userLoggedIn.getString("employee_id",null)
+        var employee_id = if(absenTemanId != "") absenTemanId else userLoggedIn.getString("employee_id",null)
 
-        mApiInterface.presences(userLoggedIn.getString("token",null)!!,employee_id!!,typeBody,attachment,latBody,lngBody,inLocationBody,pic_url,worktimeItemId).enqueue(object : Callback<Any> {
+        mApiInterface.presences(
+            userLoggedIn.getString("token",null)!!,
+            employee_id!!,
+            typeBody,
+            attachment,
+            latBody,
+            lngBody,
+            inLocationBody,
+            pic_url,
+            worktimeItemId,
+            startedAt,
+            finishedAt
+        ).enqueue(object : Callback<Any> {
             override fun onResponse(
                 call: Call<Any>,
                 response: Response<Any>
             ) {
                 if(response.code() == 200){
                     Log.d(packageName, response.body().toString())
-                    Toast.makeText(applicationContext,"Berhasil",Toast.LENGTH_LONG).show()
-
-                    if(absenTeman.getString("employee_id",null) != null){
-                        absenTeman.edit().clear()
-                    }
+//                    Toast.makeText(applicationContext,"Berhasil",Toast.LENGTH_LONG).show()
+                    showAlert("Berhasil Buat Absensi!")
+                    attachmentUri = null
+                    absenTemanId = ""
                 }else{
                     var jsonObject: JSONObject? = null
                     try {

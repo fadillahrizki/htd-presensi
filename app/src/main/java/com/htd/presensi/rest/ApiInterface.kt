@@ -56,6 +56,8 @@ interface ApiInterface {
         @Part("in_location") inLocation: RequestBody,
         @Part pic_url : MultipartBody.Part,
         @Part("worktime_item_id") worktimeItemId: RequestBody,
+        @Part("started_at") started_at: RequestBody,
+        @Part("finished_at") finished_at: RequestBody,
     ): Call<Any>
 
     @Multipart
@@ -72,6 +74,9 @@ interface ApiInterface {
 
     @GET("times")
     fun getTimes():Call<Any>
+
+    @GET("paid_leaves")
+    fun getPaidLeaves(@Header("authorization") token : String):Call<Any>
 
     @GET("employees/{id}/presences/check_if_exists/{worktime_item_id}")
     fun checkIfExists(@Header("authorization") token : String,@Path("id") id: String,@Path("worktime_item_id") worktime_item_id: String,): Call<Any>

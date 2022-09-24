@@ -16,4 +16,5 @@ class MainViewModel : ViewModel() {
     var worktimeItems : MutableLiveData<ArrayList<WorktimeItem>> = MutableLiveData()
     var activeWorktime : MutableLiveData<WorktimeItem> = MutableLiveData()
     var times : MutableLiveData<String> = MutableLiveData()
+    var paidLeaves : MutableLiveData<ArrayList<String>> = MutableLiveData()
 }

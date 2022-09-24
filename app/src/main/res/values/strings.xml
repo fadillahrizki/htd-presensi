@@ -64,4 +64,6 @@
     <string name="cuti">Cuti</string>
     <string name="masukkan_waktu_mulai">Masukkan Waktu Mulai</string>
     <string name="masukkan_waktu_selesai">Masukkan Waktu Selesai</string>
+    <string name="history_cuti">Riwayat Cuti</string>
+    <string name="history_tugas_luar">Riwayat Tugas Luar</string>
 </resources>

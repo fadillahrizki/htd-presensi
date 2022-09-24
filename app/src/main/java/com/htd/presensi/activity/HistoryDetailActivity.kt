@@ -127,21 +127,23 @@ class HistoryDetailActivity : AppCompatActivity() {
                 }
             }
 
-            if(data.type!!.contains("Cuti")){
-                binding.status.text = "Cuti"
+            if(data.type!!.contains("Cuti") || data.type == "tugas luar"){
+                binding.llStatus.visibility = View.GONE
                 binding.inLocation.text = "-"
                 binding.txtTanggal.text = "Tanggal Pengajuan"
                 binding.dateStart.text = data.started_at
                 binding.dateEnd.text = data.finished_at
                 binding.llStart.visibility = View.VISIBLE
                 binding.llEnd.visibility = View.VISIBLE
+                binding.llInLocation.visibility = View.GONE
+                binding.llKeterlambatan.visibility = View.GONE
+                binding.llPersentase.visibility = View.GONE
             }else{
                 binding.status.text = data.worktimeItem?.capitalize()
                 binding.inLocation.text = if(data.in_location!!) "Ya" else "Tidak"
+                binding.timeLeft.text = data.time_left
+                binding.persentase.text = data.persentase
             }
-
-            binding.timeLeft.text = data.time_left
-            binding.persentase.text = data.persentase
             binding.type.text = data.type?.capitalize() + " ("+data.status+")"
             binding.date.text = data.date+" ("+data.time+")"
             loading.hide()

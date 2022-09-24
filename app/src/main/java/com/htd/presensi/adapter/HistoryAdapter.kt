@@ -23,18 +23,20 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val dt = data[position]
-        if(dt.type!!.contains("Cuti")){
-            holder.tvStatus.visibility = View.GONE
-            holder.tvInLocation.text = "-"
+        if(dt.type!!.contains("Cuti") || dt.type == "tugas luar"){
+            holder.tvStatus.text = dt.type?.capitalize()
+            holder.tvDate.text = dt.date
+            holder.tvType.text = dt.started_at
+            holder.tvInLocation.text = dt.finished_at
         }else{
             holder.tvStatus.text = dt.worktimeItem?.capitalize()
             holder.tvInLocation.text = if(dt.time == "false") "" else if(dt.in_location!!) "di lokasi" else "di luar lokasi"
+            holder.tvType.text = dt.type?.capitalize() + if(dt.status == "false") "" else " ("+dt.status+")"
+            holder.tvDate.text = dt.date
+            holder.tvTimeLeft.text = dt.time_left
         }
-        holder.tvType.text = dt.type?.capitalize() + if(dt.status == "false") "" else " ("+dt.status+")"
-        holder.tvDate.text = dt.date
-        holder.tvTime.text = if(dt.time == "false") "" else dt.time
-        holder.tvTimeLeft.text = dt.time_left
 
+        holder.tvTime.text = dt.time
         holder.itemView.setOnClickListener {
             if(dt.time != "false"){
                 var intent = Intent(context, HistoryDetailActivity::class.java)

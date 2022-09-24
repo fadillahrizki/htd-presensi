@@ -335,6 +335,8 @@ import java.io.File
         binding.absen.setOnClickListener(this)
         binding.profil.setOnClickListener(this)
         binding.history.setOnClickListener(this)
+        binding.historyCuti.setOnClickListener(this)
+        binding.historyTugasLuar.setOnClickListener(this)
         binding.izinKerja.setOnClickListener(this)
         binding.absenTeman.setOnClickListener(this)
         binding.cuti.setOnClickListener(this)
@@ -513,7 +515,6 @@ import java.io.File
 
     }
 
-//    Belum Selesai
     fun openCuti(){
 
         val dialog = Dialog(this)
@@ -695,6 +696,20 @@ import java.io.File
             }
             binding.history.id->{
                 startActivity(Intent(applicationContext, HistoryActivity::class.java))
+                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
+                loading.dismiss()
+            }
+            binding.historyCuti.id->{
+                var intent = Intent(applicationContext, HistoryActivity::class.java)
+                intent.putExtra("type","cuti")
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
+                loading.dismiss()
+            }
+            binding.historyTugasLuar.id->{
+                var intent = Intent(applicationContext, HistoryActivity::class.java)
+                intent.putExtra("type","tugas luar")
+                startActivity(intent)
                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
                 loading.dismiss()
             }

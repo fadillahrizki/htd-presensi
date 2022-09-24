@@ -47,6 +47,7 @@ tools:context=".activity.HistoryDetailActivity">
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -72,6 +73,7 @@ tools:context=".activity.HistoryDetailActivity">
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_in_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -177,6 +179,7 @@ tools:context=".activity.HistoryDetailActivity">
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_keterlambatan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -203,6 +206,7 @@ tools:context=".activity.HistoryDetailActivity">
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/ll_persentase"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

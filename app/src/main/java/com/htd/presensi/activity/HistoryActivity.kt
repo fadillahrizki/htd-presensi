@@ -246,7 +246,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     val presences = data.getAsJsonArray("presences")
 
                     var arrPresences = ArrayList<Presence>()
-                    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    val sdf = SimpleDateFormat("yyyy-MM-dd")
 
                     for(p in presences){
                         val obj = p.asJsonObject

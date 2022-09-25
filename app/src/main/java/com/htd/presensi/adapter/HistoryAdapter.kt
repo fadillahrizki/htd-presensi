@@ -28,15 +28,16 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
             holder.tvDate.text = dt.date
             holder.tvType.text = dt.started_at
             holder.tvInLocation.text = dt.finished_at
+            holder.tvTime.text = ""
         }else{
             holder.tvStatus.text = dt.worktimeItem?.capitalize()
             holder.tvInLocation.text = if(dt.time == "false") "" else if(dt.in_location!!) "di lokasi" else "di luar lokasi"
             holder.tvType.text = dt.type?.capitalize() + if(dt.status == "false") "" else " ("+dt.status+")"
             holder.tvDate.text = dt.date
             holder.tvTimeLeft.text = dt.time_left
+            holder.tvTime.text = if(dt.time == "false") "" else dt.time
         }
 
-        holder.tvTime.text = dt.time
         holder.itemView.setOnClickListener {
             if(dt.time != "false"){
                 var intent = Intent(context, HistoryDetailActivity::class.java)

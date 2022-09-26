@@ -82,6 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
+            android:visibility="gone"
             android:text="@string/cuti"
             app:icon="@drawable/ic_book"
             app:iconGravity="textStart"/>
@@ -91,6 +92,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
+            android:visibility="gone"
             android:text="@string/tugas_luar"
             app:icon="@drawable/ic_book"
             app:iconGravity="textStart" />

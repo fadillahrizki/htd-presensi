@@ -311,37 +311,39 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                         call: Call<Any>,
                         response: Response<Any>
                     ) {
-                        var res = Gson().toJsonTree(response.body()).asJsonObject
-                        var data = res.getAsJsonObject("data")
+                        if(response.body() != null){
+                            var res = Gson().toJsonTree(response.body()).asJsonObject
+                            var data = res.getAsJsonObject("data")
 
-                        Log.d("cuti",data.toString())
+                            Log.d("cuti",data.toString())
 
-                        val presences = data.getAsJsonArray("presences")
-                        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                            val presences = data.getAsJsonArray("presences")
+                            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-                        var arrPresences = ArrayList<Presence>()
+                            var arrPresences = ArrayList<Presence>()
 
-                        for(p in presences){
-                            val obj = p.asJsonObject
-                            val started_at = sdf.parse(obj.get("started_at").asString)
-                            val finished_at = sdf.parse(obj.get("finished_at").asString)
-                            val created_at = sdf.parse(obj.get("created_at").asString)
+                            for(p in presences){
+                                val obj = p.asJsonObject
+                                val started_at = sdf.parse(obj.get("started_at").asString)
+                                val finished_at = sdf.parse(obj.get("finished_at").asString)
+                                val created_at = sdf.parse(obj.get("created_at").asString)
 
-                            var presence = Presence()
-                            presence.id = obj.get("id").asString
-                            presence.attachment_url = obj.get("attachment_url")?.asString
-                            presence.type = obj.get("type").asString
-                            presence.in_location = obj.get("in_location").asBoolean
-                            presence.status = obj.get("status").asString
-                            presence.started_at = SimpleDateFormat("dd MMMM yyyy", Locale("id")).format(started_at)
-                            presence.finished_at = SimpleDateFormat("dd MMMM yyyy", Locale("id")).format(finished_at)
-                            presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(created_at)
-                            presence.time = SimpleDateFormat("HH:mm").format(created_at)
+                                var presence = Presence()
+                                presence.id = obj.get("id").asString
+                                presence.attachment_url = obj.get("attachment_url")?.asString
+                                presence.type = obj.get("type").asString
+                                presence.in_location = obj.get("in_location").asBoolean
+                                presence.status = obj.get("status").asString
+                                presence.started_at = SimpleDateFormat("dd MMMM yyyy", Locale("id")).format(started_at)
+                                presence.finished_at = SimpleDateFormat("dd MMMM yyyy", Locale("id")).format(finished_at)
+                                presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(created_at)
+                                presence.time = SimpleDateFormat("HH:mm").format(created_at)
 
-                            arrPresences.add(presence)
+                                arrPresences.add(presence)
+                            }
+
+                            mainViewModel.histories.postValue(arrPresences)
                         }
-
-                        mainViewModel.histories.postValue(arrPresences)
 
                         loading.hide()
 
@@ -360,37 +362,40 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                         call: Call<Any>,
                         response: Response<Any>
                     ) {
-                        var res = Gson().toJsonTree(response.body()).asJsonObject
-                        var data = res.getAsJsonObject("data")
 
-                        Log.d("tugas luar",data.toString())
+                        if(response.body() != null){
+                            var res = Gson().toJsonTree(response.body()).asJsonObject
+                            var data = res.getAsJsonObject("data")
 
-                        val presences = data.getAsJsonArray("presences")
+                            Log.d("tugas luar",data.toString())
 
-                        var arrPresences = ArrayList<Presence>()
-                        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                            val presences = data.getAsJsonArray("presences")
 
-                        for(p in presences){
-                            val obj = p.asJsonObject
-                            val started_at = sdf.parse(obj.get("started_at").asString)
-                            val finished_at = sdf.parse(obj.get("finished_at").asString)
-                            val created_at = sdf.parse(obj.get("created_at").asString)
+                            var arrPresences = ArrayList<Presence>()
+                            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-                            var presence = Presence()
-                            presence.id = obj.get("id").asString
-                            presence.attachment_url = obj.get("attachment_url")?.asString
-                            presence.type = obj.get("type").asString
-                            presence.in_location = obj.get("in_location").asBoolean
-                            presence.status = obj.get("status").asString
-                            presence.started_at = SimpleDateFormat("dd MMMM yyyy", Locale("id")).format(started_at)
-                            presence.finished_at = SimpleDateFormat("dd MMMM yyyy", Locale("id")).format(finished_at)
-                            presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(created_at)
-                            presence.time = SimpleDateFormat("HH:mm").format(created_at)
+                            for(p in presences){
+                                val obj = p.asJsonObject
+                                val started_at = sdf.parse(obj.get("started_at").asString)
+                                val finished_at = sdf.parse(obj.get("finished_at").asString)
+                                val created_at = sdf.parse(obj.get("created_at").asString)
 
-                            arrPresences.add(presence)
+                                var presence = Presence()
+                                presence.id = obj.get("id").asString
+                                presence.attachment_url = obj.get("attachment_url")?.asString
+                                presence.type = obj.get("type").asString
+                                presence.in_location = obj.get("in_location").asBoolean
+                                presence.status = obj.get("status").asString
+                                presence.started_at = SimpleDateFormat("dd MMMM yyyy", Locale("id")).format(started_at)
+                                presence.finished_at = SimpleDateFormat("dd MMMM yyyy", Locale("id")).format(finished_at)
+                                presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(created_at)
+                                presence.time = SimpleDateFormat("HH:mm").format(created_at)
+
+                                arrPresences.add(presence)
+                            }
+
+                            mainViewModel.histories.postValue(arrPresences)
                         }
-
-                        mainViewModel.histories.postValue(arrPresences)
                         loading.hide()
 
                     }
@@ -410,58 +415,60 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
-                    var res = Gson().toJsonTree(response.body()).asJsonObject
-                    var data = res.getAsJsonObject("data")
+                    if(response.body() != null){
+                        var res = Gson().toJsonTree(response.body()).asJsonObject
+                        var data = res.getAsJsonObject("data")
 
-                    Log.d("histories",data.toString())
+                        Log.d("histories",data.toString())
 
 
-                    val presences = data.getAsJsonArray("presences")
+                        val presences = data.getAsJsonArray("presences")
 
-                    var arrPresences = ArrayList<Presence>()
-                    val sdf = SimpleDateFormat("yyyy-MM-dd")
+                        var arrPresences = ArrayList<Presence>()
+                        val sdf = SimpleDateFormat("yyyy-MM-dd")
 
-                    for(p in presences){
-                        val obj = p.asJsonObject
-                        val date = sdf.parse(obj.get("date").asString)
+                        for(p in presences){
+                            val obj = p.asJsonObject
+                            val date = sdf.parse(obj.get("date").asString)
 
-                        var presence = Presence()
-                        presence.id = obj.get("id").asString
-                        presence.attachment_url = obj.get("attachment_url")?.asString
-                        presence.pic_url = obj.get("pic_url")?.asString
-                        presence.lat = obj.get("lat")?.asString
-                        presence.lng = obj.get("lng")?.asString
-                        presence.type = obj.get("type").asString
-                        presence.in_location = obj.get("in_location").asBoolean
-                        presence.status = obj.get("status").asString
-                        presence.worktimeItem = if(obj.get("worktime_item") != null) obj.get("worktime_item").asJsonObject.get("name").asString else ""
-                        presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
-                        presence.time = obj.get("time")?.asString
-                        presence.persentase = obj.get("presentase")?.asString
+                            var presence = Presence()
+                            presence.id = obj.get("id").asString
+                            presence.attachment_url = obj.get("attachment_url")?.asString
+                            presence.pic_url = obj.get("pic_url")?.asString
+                            presence.lat = obj.get("lat")?.asString
+                            presence.lng = obj.get("lng")?.asString
+                            presence.type = obj.get("type").asString
+                            presence.in_location = obj.get("in_location").asBoolean
+                            presence.status = obj.get("status").asString
+                            presence.worktimeItem = if(obj.get("worktime_item") != null) obj.get("worktime_item").asJsonObject.get("name").asString else ""
+                            presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
+                            presence.time = obj.get("time")?.asString
+                            presence.persentase = obj.get("presentase")?.asString
 
-                        if(obj.get("time_left") != null){
+                            if(obj.get("time_left") != null){
 
-                            var time_left_int = obj.get("time_left").asInt
-                            var time_left = ""
+                                var time_left_int = obj.get("time_left").asInt
+                                var time_left = ""
 
-                            // terlalu cepat
-                            if(presence.worktimeItem == "Masuk")
-                            {
-                                time_left = "Keterlambatan "+time_left_int+" Menit ("+presence.persentase+"%)"
-                            }else if(presence.worktimeItem == "Pulang")
-                            {
-                                time_left = "Sebelum Waktu "+time_left_int+" Menit ("+presence.persentase+"%)"
-                            }else{
-                                time_left = "Tepat Waktu"
+                                // terlalu cepat
+                                if(presence.worktimeItem == "Masuk")
+                                {
+                                    time_left = "Keterlambatan "+time_left_int+" Menit ("+presence.persentase+"%)"
+                                }else if(presence.worktimeItem == "Pulang")
+                                {
+                                    time_left = "Sebelum Waktu "+time_left_int+" Menit ("+presence.persentase+"%)"
+                                }else{
+                                    time_left = "Tepat Waktu"
+                                }
+
+                                presence.time_left = time_left
                             }
 
-                            presence.time_left = time_left
+                            arrPresences.add(presence)
                         }
 
-                        arrPresences.add(presence)
+                        mainViewModel.histories.postValue(arrPresences)
                     }
-
-                    mainViewModel.histories.postValue(arrPresences)
 
                     loading.hide()
 
@@ -478,27 +485,29 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     call: Call<Any>,
                     response: Response<Any>
                 ) {
-                    var res = Gson().toJsonTree(response.body()).asJsonObject
-                    var dt = res.getAsJsonObject("data")
-                    var data = dt.getAsJsonArray("data")
-                    var report = Report()
-                    if(data.size() > 0){
-                        report.hadir = data.get(0).asJsonObject.get("hadir").asInt.toString()
-                        report.alfa = data.get(0).asJsonObject.get("alfa").asInt.toString()
-                        report.cuti = data.get(0).asJsonObject.get("cuti").asInt.toString()
-                        report.hari_kerja = data.get(0).asJsonObject.get("hari_kerja").asInt.toString()
-                        report.waktu_telat = data.get(0).asJsonObject.get("time_left").asInt.toString()
-                        report.persentase = data.get(0).asJsonObject.get("presentase").asString
-                    }else{
-                        report.hadir = "0"
-                        report.alfa = "0"
-                        report.cuti = "0"
-                        report.hari_kerja = "0"
-                        report.waktu_telat = "0"
-                        report.persentase = "0%"
+                    if(response.body() != null){
+                        var res = Gson().toJsonTree(response.body()).asJsonObject
+                        var dt = res.getAsJsonObject("data")
+                        var data = dt.getAsJsonArray("data")
+                        var report = Report()
+                        if(data.size() > 0){
+                            report.hadir = data.get(0).asJsonObject.get("hadir").asInt.toString()
+                            report.alfa = data.get(0).asJsonObject.get("alfa").asInt.toString()
+                            report.cuti = data.get(0).asJsonObject.get("cuti").asInt.toString()
+                            report.hari_kerja = data.get(0).asJsonObject.get("hari_kerja").asInt.toString()
+                            report.waktu_telat = data.get(0).asJsonObject.get("time_left").asInt.toString()
+                            report.persentase = data.get(0).asJsonObject.get("presentase").asString
+                        }else{
+                            report.hadir = "0"
+                            report.alfa = "0"
+                            report.cuti = "0"
+                            report.hari_kerja = "0"
+                            report.waktu_telat = "0"
+                            report.persentase = "0%"
+                        }
+                        mainViewModel.reports.postValue(report)
+                        Log.d("reports",data.toString())
                     }
-                    mainViewModel.reports.postValue(report)
-                    Log.d("reports",data.toString())
                 }
 
                 override fun onFailure(call: Call<Any>, t: Throwable) {

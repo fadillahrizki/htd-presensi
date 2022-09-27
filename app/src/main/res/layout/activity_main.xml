@@ -69,6 +69,33 @@
             app:iconGravity="textStart"/>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/history_cuti"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/history_cuti"
+            app:icon="@drawable/ic_book"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/history_tugas_luar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/history_tugas_luar"
+            app:icon="@drawable/ic_book"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/history"
+            app:icon="@drawable/ic_history"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/profil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -115,33 +142,6 @@
             android:text="@string/sakit"
             android:visibility="gone"
             app:icon="@drawable/ic_hospital"
-            app:iconGravity="textStart" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/history"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:text="@string/history"
-            app:icon="@drawable/ic_history"
-            app:iconGravity="textStart" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/history_cuti"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:text="@string/history_cuti"
-            app:icon="@drawable/ic_history"
-            app:iconGravity="textStart" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/history_tugas_luar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:text="@string/history_tugas_luar"
-            app:icon="@drawable/ic_history"
             app:iconGravity="textStart" />
 
         <com.google.android.material.button.MaterialButton

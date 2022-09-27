@@ -28,6 +28,7 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
             holder.tvDate.text = dt.date
             holder.tvType.text = dt.started_at
             holder.tvInLocation.text = dt.finished_at
+            holder.tvTimeLeft.text = dt.status?.capitalize()
             holder.tvTime.text = ""
         }else{
             holder.tvStatus.text = dt.worktimeItem?.capitalize()

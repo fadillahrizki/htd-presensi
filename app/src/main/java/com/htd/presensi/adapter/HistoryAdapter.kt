@@ -23,7 +23,7 @@ class HistoryAdapter(var context: Context) : RecyclerView.Adapter<HistoryAdapter
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val dt = data[position]
-        if(dt.type!!.contains("Cuti") || dt.type == "tugas luar"){
+        if(dt.type!!.contains("Cuti") || dt.type!!.contains("tugas")){
             holder.tvStatus.text = dt.type?.capitalize()
             holder.tvDate.text = dt.date
             holder.tvType.text = dt.started_at

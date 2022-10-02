@@ -15,7 +15,6 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.htd.presensi.adapter.HistoryAdapter
 import com.htd.presensi.databinding.ActivityHistoryBinding
@@ -37,6 +36,7 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 class HistoryActivity : AppCompatActivity(), View.OnClickListener,
     AdapterView.OnItemSelectedListener {
 
@@ -50,6 +50,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
     lateinit var cutiAdapter: ArrayAdapter<String>
 
     var selectedCuti = ""
+    var selectedTugas = ""
     var attachmentUri : Uri? = null
     val FILE_NAME = "presence.jpg"
     val REQUEST_FILE_TUGAS_LUAR = 5
@@ -94,7 +95,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
             if(intent.extras!!.getString("type") == "cuti"){
                 supportActionBar?.title = "Riwayat Cuti"
             }else{
-                supportActionBar?.title = "Riwayat Tugas Luar"
+                supportActionBar?.title = "Riwayat Tugas Luar / Dalam"
             }
         }else{
             supportActionBar?.title = "Riwayat Absensi"
@@ -257,6 +258,27 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
         lampiranTugasLuarText = dialog.findViewById(com.htd.presensi.R.id.tv_lampiran) as TextView
         lampiranTugasLuarText.text = "Pilih File Lebih Dahulu"
 
+        val arraySpinner = arrayOf(
+            "tugas luar", "tugas dalam"
+        )
+
+        val adapter = ArrayAdapter(
+            this,
+            R.layout.simple_spinner_item, arraySpinner
+        )
+        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+
+        val jenisPengajuan = dialog.findViewById(com.htd.presensi.R.id.jenis_pengajuan) as Spinner
+        jenisPengajuan.adapter = adapter
+
+        jenisPengajuan.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                selectedTugas = arraySpinner[position]
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        })
+
         var tvWaktuMulai = dialog.findViewById(com.htd.presensi.R.id.tv_waktu_mulai) as TextView
         var tvWaktuSelesai = dialog.findViewById(com.htd.presensi.R.id.tv_waktu_selesai) as TextView
 
@@ -283,7 +305,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
 
         yesBtn.setOnClickListener {
             if(attachmentUri != null && tvWaktuMulai.text.toString() != null && tvWaktuSelesai.text.toString() != null){
-                presences("tugas luar",attachmentUri!!,tvWaktuMulai.text.toString(),tvWaktuSelesai.text.toString())
+                presences(selectedTugas,attachmentUri!!,tvWaktuMulai.text.toString(),tvWaktuSelesai.text.toString())
                 dialog.dismiss()
             }else{
                 showAlert("Pilih Tanggal/File Lebih Dulu")

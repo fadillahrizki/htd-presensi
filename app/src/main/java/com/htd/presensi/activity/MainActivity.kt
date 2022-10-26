@@ -951,7 +951,7 @@ import java.io.File
                 if(response.code() == 200){
                     Log.d(packageName, response.body().toString())
 //                    Toast.makeText(applicationContext,"Berhasil",Toast.LENGTH_LONG).show()
-                    showAlert("Berhasil Buat Absensi!")
+                    showAlert("Kirim Data Berhasil!")
                     attachmentUri = null
                     absenTemanId = ""
                 }else{

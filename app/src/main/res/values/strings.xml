@@ -66,4 +66,6 @@
     <string name="masukkan_waktu_selesai">Masukkan Waktu Selesai</string>
     <string name="history_cuti">Cuti</string>
     <string name="history_tugas_luar">Tugas Luar / Dalam</string>
+    <string name="ambil_foto">Ambil Foto</string>
+    <string name="history_kehadiran"><![CDATA[Riwayat Kehadiran]]></string>
 </resources>

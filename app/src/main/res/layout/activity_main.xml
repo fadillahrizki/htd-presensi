@@ -54,8 +54,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
-            android:text="@string/absen"
-            app:icon="@drawable/ic_time"
+            android:text="@string/ambil_foto"
+            app:icon="@drawable/ic_camera"
             app:iconGravity="textStart"/>
 
         <com.google.android.material.button.MaterialButton
@@ -91,7 +91,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
-            android:text="@string/history"
+            android:text="@string/history_kehadiran"
             app:icon="@drawable/ic_history"
             app:iconGravity="textStart" />
 

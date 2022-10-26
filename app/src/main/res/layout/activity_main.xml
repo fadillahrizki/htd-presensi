@@ -54,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="20dp"
-            android:text="@string/ambil_foto"
+            android:text="@string/masuk_pulang"
             app:icon="@drawable/ic_camera"
             app:iconGravity="textStart"/>
 

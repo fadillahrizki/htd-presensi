@@ -68,4 +68,5 @@
     <string name="history_tugas_luar">Tugas Luar / Dalam</string>
     <string name="ambil_foto">Ambil Foto</string>
     <string name="history_kehadiran"><![CDATA[Riwayat Kehadiran]]></string>
+    <string name="masuk_pulang">Masuk / Pulang</string>
 </resources>

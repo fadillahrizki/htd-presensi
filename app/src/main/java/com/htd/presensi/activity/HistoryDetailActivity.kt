@@ -95,7 +95,11 @@ class HistoryDetailActivity : AppCompatActivity() {
 
     fun observe(){
         mainViewModel.historyDetail.observe(this) { data ->
-            Glide.with(this@HistoryDetailActivity).load(BASE_URL+data.pic_url).into(binding.image)
+            if (data.pic_url == null) {
+                binding.image.visibility = View.GONE
+            } else {
+                Glide.with(this@HistoryDetailActivity).load(BASE_URL+data.pic_url).into(binding.image)
+            }
             Log.d(packageName,data.toString())
 
             if(data.attachment_url != null) {

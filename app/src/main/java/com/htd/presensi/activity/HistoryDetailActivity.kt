@@ -131,6 +131,12 @@ class HistoryDetailActivity : AppCompatActivity() {
                 }
             }
 
+            if(data.type!!.contains("Cuti")){
+                supportActionBar?.title = "Detail Riwayat Cuti"
+            } else if(data.type == "tugas luar") {
+                supportActionBar?.title = "Detail Riwayat Tugas Luar / Dalam"
+            }
+
             if(data.type!!.contains("Cuti") || data.type == "tugas luar"){
                 binding.llStatus.visibility = View.GONE
                 binding.inLocation.text = "-"

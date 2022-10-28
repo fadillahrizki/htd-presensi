@@ -159,7 +159,7 @@ import java.io.File
                     checkIfExists()
                 }
             }else{
-                showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+                showAlert("Maaf! Saat ini tidak ada jadwal presensi")
             }
         }
 
@@ -241,7 +241,7 @@ import java.io.File
                             mainViewModel.activeWorktime.postValue(worktimeItem)
 
                         }else{
-                            showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+                            showAlert("Maaf! Saat ini tidak ada jadwal presensi")
                         }
                     }
                 }else{
@@ -249,7 +249,7 @@ import java.io.File
                     try {
                         jsonObject = JSONObject(response.errorBody().string())
                         val message: String = jsonObject.getString("message")
-                        showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+                        showAlert("Maaf! Saat ini tidak ada jadwal presensi")
 //                        showAlert(message)
 //                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {

@@ -230,7 +230,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
         }
 
         yesBtn.setOnClickListener {
-            if(selectedCuti != null && attachmentUri != null && tvWaktuMulai.text.toString() != null && tvWaktuSelesai.text.toString() != null){
+            if(selectedCuti != null && attachmentUri != null && tvWaktuMulai.text != "Pilih Tanggal Lebih Dahulu" && tvWaktuSelesai.text != "Pilih Tanggal Lebih Dahulu"){
                 presences(selectedCuti,attachmentUri!!,tvWaktuMulai.text.toString(),tvWaktuSelesai.text.toString())
                 dialog.dismiss()
             }else{
@@ -287,12 +287,12 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
 
         btnWaktuMulai.setOnClickListener{
             tvWaktuMulai.text = CustomDatePickerDialog.year.toString()+"-"+(CustomDatePickerDialog.month+1).toString()+"-"+CustomDatePickerDialog.day.toString()
-            CustomDatePickerDialog.show(this, dialog.findViewById(com.htd.presensi.R.id.tv_waktu_mulai))
+            CustomDatePickerDialog.show(this, tvWaktuMulai)
         }
 
         btnWaktuSelesai.setOnClickListener{
             tvWaktuSelesai.text = CustomDatePickerDialog.year.toString()+"-"+(CustomDatePickerDialog.month+1).toString()+"-"+CustomDatePickerDialog.day.toString()
-            CustomDatePickerDialog.show(this, dialog.findViewById(com.htd.presensi.R.id.tv_waktu_selesai))
+            CustomDatePickerDialog.show(this, tvWaktuSelesai)
         }
 
         btnLampiran.setOnClickListener {
@@ -304,7 +304,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
         }
 
         yesBtn.setOnClickListener {
-            if(attachmentUri != null && tvWaktuMulai.text.toString() != null && tvWaktuSelesai.text.toString() != null){
+            if(attachmentUri != null && tvWaktuMulai.text != "Pilih Tanggal Lebih Dahulu" && tvWaktuSelesai.text != "Pilih Tanggal Lebih Dahulu"){
                 presences(selectedTugas,attachmentUri!!,tvWaktuMulai.text.toString(),tvWaktuSelesai.text.toString())
                 dialog.dismiss()
             }else{
@@ -627,7 +627,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     var data = res.getAsJsonObject("data")
                     var alert = AlertDialog.Builder(this@HistoryActivity)
                     alert.setTitle("Pengajuan berhasil!")
-                    alert.setMessage("Mohon untuk menunggu persetujuan dari admin BKD, Cek status pengajuan secara berkala")
+                    alert.setMessage("Mohon untuk menunggu persetujuan dari admin BKD.")
                     alert.setPositiveButton("Ok"){dialog,_->
                         dialog.dismiss()
                         var intent = Intent(this@HistoryActivity, HistoryDetailActivity::class.java)

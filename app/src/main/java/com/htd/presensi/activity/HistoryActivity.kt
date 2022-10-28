@@ -626,7 +626,8 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                     var res = Gson().toJsonTree(response.body()).asJsonObject
                     var data = res.getAsJsonObject("data")
                     var alert = AlertDialog.Builder(this@HistoryActivity)
-                    alert.setMessage("Pengajuan berhasil!")
+                    alert.setTitle("Pengajuan berhasil!")
+                    alert.setMessage("Mohon untuk menunggu persetujuan dari admin BKD, Cek status pengajuan secara berkala")
                     alert.setPositiveButton("Ok"){dialog,_->
                         dialog.dismiss()
                         var intent = Intent(this@HistoryActivity, HistoryDetailActivity::class.java)

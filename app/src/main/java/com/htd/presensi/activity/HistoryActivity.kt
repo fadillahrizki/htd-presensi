@@ -98,7 +98,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                 supportActionBar?.title = "Riwayat Tugas Luar / Dalam"
             }
         }else{
-            supportActionBar?.title = "Riwayat Absensi"
+            supportActionBar?.title = "Riwayat Kehadiran"
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -618,11 +618,24 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                 response: Response<Any>
             ) {
                 if(response.code() == 200){
-                    Log.d(packageName, response.body().toString())
+                    Log.d("TEST", response.body().toString())
 //                    Toast.makeText(applicationContext,"Berhasil",Toast.LENGTH_LONG).show()
-                    showAlert("Pengajuan berhasil!")
+//                    showAlert("Pengajuan berhasil!")
                     attachmentUri = null
-                    api()
+
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.getAsJsonObject("data")
+                    var alert = AlertDialog.Builder(this@HistoryActivity)
+                    alert.setMessage("Pengajuan berhasil!")
+                    alert.setPositiveButton("Ok"){dialog,_->
+                        dialog.dismiss()
+                        var intent = Intent(this@HistoryActivity, HistoryDetailActivity::class.java)
+                        intent.putExtra("employee_presence_id", data.get("id").asString)
+                        startActivity(intent)
+                    }
+                    alert.show()
+
+//                    api()
                 }else{
                     var jsonObject: JSONObject? = null
                     try {

@@ -369,12 +369,12 @@ import java.io.File
                         takePicture()
                     }else{
                         inLocation = false
-                        alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
-                        alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
+                        alertDialogBuilder.setTitle("Anda sedang berada di luar lokasi")
+                        alertDialogBuilder.setMessage("Proses selanjutnya anda harus mengupload SPT dan memerlukan persetujuan dari admin BKD\nApakah anda ingin melanjutkan?")
                         alertDialogBuilder.setNeutralButton("Lihat Lokasi"){ dialog,_->
 
                             val alert = AlertDialog.Builder(this)
-                            alert.setTitle("Lokasi Anda")
+                            alert.setTitle("Lokasi Saya")
 
                             val wv = WebView(this)
                             wv.settings.javaScriptEnabled = true
@@ -951,9 +951,22 @@ import java.io.File
                 if(response.code() == 200){
                     Log.d(packageName, response.body().toString())
 //                    Toast.makeText(applicationContext,"Berhasil",Toast.LENGTH_LONG).show()
-                    showAlert("Kirim Data Berhasil!")
+//                    showAlert("Kirim Data Berhasil!")
                     attachmentUri = null
                     absenTemanId = ""
+
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.getAsJsonObject("data")
+                    var alert = AlertDialog.Builder(this@MainActivity)
+                    alert.setMessage("Kirim Data Berhasil!")
+                    alert.setPositiveButton("Ok"){dialog,_->
+                        dialog.dismiss()
+                        var intent = Intent(this@MainActivity, HistoryDetailActivity::class.java)
+                        intent.putExtra("employee_presence_id", data.get("id").asString)
+                        startActivity(intent)
+                    }
+                    alert.show()
+
                 }else{
                     var jsonObject: JSONObject? = null
                     try {

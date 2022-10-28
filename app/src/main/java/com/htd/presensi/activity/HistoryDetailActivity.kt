@@ -72,7 +72,7 @@ class HistoryDetailActivity : AppCompatActivity() {
 
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
 
-        supportActionBar?.title = "Detail Riwayat"
+        supportActionBar?.title = "Detail Riwayat Kehadiran"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 

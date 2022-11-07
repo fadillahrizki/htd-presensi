@@ -32,7 +32,7 @@
 
             <TextView
                 android:id="@+id/nama"
-                android:text="Rizky Fadillah"
+                android:text="-"
                 android:textSize="16sp"
                 android:textColor="@color/text_color"
                 android:layout_marginBottom="12dp"
@@ -77,7 +77,7 @@
 
             <TextView
                 android:id="@+id/email"
-                android:text="email@gmail.com"
+                android:text="-"
                 android:textSize="16sp"
                 android:textColor="@color/text_color"
                 android:layout_marginBottom="12dp"
@@ -125,7 +125,7 @@
 
             <TextView
                 android:id="@+id/nip"
-                android:text="211110196"
+                android:text="-"
                 android:textSize="16sp"
                 android:textColor="@color/text_color"
                 android:layout_marginBottom="12dp"
@@ -150,7 +150,7 @@
 
             <TextView
                 android:id="@+id/golongan"
-                android:text="3A"
+                android:text="-"
                 android:textSize="16sp"
                 android:textColor="@color/text_color"
                 android:layout_marginBottom="12dp"
@@ -174,7 +174,7 @@
 
             <TextView
                 android:id="@+id/instansi"
-                android:text="Google"
+                android:text="-"
                 android:textSize="16sp"
                 android:textColor="@color/text_color"
                 android:layout_marginBottom="12dp"
@@ -199,7 +199,7 @@
 
             <TextView
                 android:id="@+id/jabatan"
-                android:text="Software Engineer"
+                android:text="-"
                 android:textSize="16sp"
                 android:textColor="@color/text_color"
                 android:layout_marginBottom="12dp"
@@ -224,7 +224,7 @@
 
 <!--            <TextView-->
 <!--                android:id="@+id/atasan"-->
-<!--                android:text="CEO"-->
+<!--                android:text="-"-->
 <!--                android:textSize="16sp"-->
 <!--                android:textColor="@color/text_color"-->
 <!--                android:layout_marginBottom="12dp"-->
@@ -249,7 +249,7 @@
 
 <!--            <TextView-->
 <!--                android:id="@+id/nama_atasan"-->
-<!--                android:text="Rizky Fadillah"-->
+<!--                android:text="-"-->
 <!--                android:textSize="16sp"-->
 <!--                android:textColor="@color/text_color"-->
 <!--                android:layout_marginBottom="12dp"-->
@@ -275,7 +275,7 @@
 
             <TextView
                 android:id="@+id/tanggal_lahir"
-                android:text="Sabtu, 18 Januari 2002"
+                android:text="-"
                 android:textSize="16sp"
                 android:textColor="@color/text_color"
                 android:layout_marginBottom="12dp"
@@ -300,7 +300,7 @@
 
             <TextView
                 android:id="@+id/ponsel"
-                android:text="+62 823-6366-0368"
+                android:text="-"
                 android:textSize="16sp"
                 android:textColor="@color/text_color"
                 android:layout_marginBottom="12dp"

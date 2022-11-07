@@ -346,7 +346,12 @@ import java.io.File
     }
 
     override fun onLocationChanged(location: Location) {
-        currentLocation = location
+        if (location.isMock) {
+            showAlert("Perangkat anda terdeteksi memiliki aplikasi lokasi palsu!")
+            currentLocation = null
+        } else {
+            currentLocation = location
+        }
     }
 
     fun getLocation() {
@@ -360,63 +365,70 @@ import java.io.File
                 if(it == null){
                     showAlert("Gagal mendapatkan lokasi")
                 }else{
-                    currentLocation=it
-                    Log.d(packageName,currentLocation.toString())
-                    Log.d("LAT",currentLocation!!.latitude.toString())
-                    Log.d("LONG",currentLocation!!.longitude.toString())
-                    if(checkLocation()) {
-                        inLocation = true
-                        takePicture()
-                    }else{
-                        inLocation = false
-                        alertDialogBuilder.setTitle("Anda sedang berada di luar lokasi")
-                        alertDialogBuilder.setMessage("Proses selanjutnya anda harus mengupload SPT dan memerlukan persetujuan dari admin BKD\nApakah anda ingin melanjutkan?")
-                        alertDialogBuilder.setNeutralButton("Lihat Lokasi"){ dialog,_->
 
-                            val alert = AlertDialog.Builder(this)
-                            alert.setTitle("Lokasi Saya")
+                    if (it.isMock) {
+                        showAlert("Perangkat anda terdeteksi memiliki aplikasi lokasi palsu!")
+                        currentLocation = null
+                    } else {
+                        currentLocation = it
 
-                            val wv = WebView(this)
-                            wv.settings.javaScriptEnabled = true
-                            val url = "https://maps.google.com/maps?q=${currentLocation!!.latitude},${currentLocation!!.longitude}&z=15&output=embed"
+                        Log.d(packageName,currentLocation.toString())
+                        Log.d("LAT",currentLocation!!.latitude.toString())
+                        Log.d("LONG",currentLocation!!.longitude.toString())
+                        if(checkLocation()) {
+                            inLocation = true
+                            takePicture()
+                        }else{
+                            inLocation = false
+                            alertDialogBuilder.setTitle("Anda sedang berada di luar lokasi")
+                            alertDialogBuilder.setMessage("Proses selanjutnya anda harus mengupload SPT dan memerlukan persetujuan dari admin BKD\nApakah anda ingin melanjutkan?")
+                            alertDialogBuilder.setNeutralButton("Lihat Lokasi"){ dialog,_->
 
-                            val data = "<iframe width='100%' height='400' src='$url' allowfullscreen frameborder='0' border='0' referrerpolicy='no-referrer-when-downgrade'></iframe>"
-                            wv.loadData(data, "text/html", "UTF-8")
-                            wv.webViewClient = object : WebViewClient() {
-                                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                                    view.loadUrl(url)
-                                    return true
+                                val alert = AlertDialog.Builder(this)
+                                alert.setTitle("Lokasi Saya")
+
+                                val wv = WebView(this)
+                                wv.settings.javaScriptEnabled = true
+                                val url = "https://maps.google.com/maps?q=${currentLocation!!.latitude},${currentLocation!!.longitude}&z=15&output=embed"
+
+                                val data = "<iframe width='100%' height='400' src='$url' allowfullscreen frameborder='0' border='0' referrerpolicy='no-referrer-when-downgrade'></iframe>"
+                                wv.loadData(data, "text/html", "UTF-8")
+                                wv.webViewClient = object : WebViewClient() {
+                                    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                                        view.loadUrl(url)
+                                        return true
+                                    }
                                 }
+
+                                alert.setView(wv)
+
+                                alert.setNeutralButton("Refresh") { dialog, _ ->
+                                    dialog.dismiss()
+                                    getLocation()
+                                }
+
+                                alert.setPositiveButton("Lanjut") { dialog, id ->
+                                    dialog.dismiss()
+                                    takePicture()
+                                }
+
+                                alert.setNegativeButton("Batal") { dialog, id ->
+                                    dialog.dismiss()
+                                }
+
+                                alert.show()
                             }
-
-                            alert.setView(wv)
-
-                            alert.setNeutralButton("Refresh") { dialog, _ ->
-                                dialog.dismiss()
-                                getLocation()
-                            }
-
-                            alert.setPositiveButton("Lanjut") { dialog, id ->
+                            alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
                                 dialog.dismiss()
                                 takePicture()
+        //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
                             }
-
-                            alert.setNegativeButton("Batal") { dialog, id ->
+                            alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
+        //                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
                                 dialog.dismiss()
                             }
-
-                            alert.show()
+                            alertDialogBuilder.show()
                         }
-                        alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
-                            dialog.dismiss()
-                            takePicture()
-    //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
-                        }
-                        alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
-    //                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
-                            dialog.dismiss()
-                        }
-                        alertDialogBuilder.show()
                     }
                 }
 

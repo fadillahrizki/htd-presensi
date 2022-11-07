@@ -178,30 +178,46 @@ import java.io.File
         mainHandler.post(object : Runnable {
             override fun run() {
                 counts = count.split(':').map{it.toInt()}.toTypedArray()
-                time = counts[2]
-                time += counts[1] * 60
-                time += (counts[0] * 60) * 60
 
-                if (counts[1] >= 59 && counts[0] > 0) {
-                    counts[0] = counts[0] + 1
-                    counts[1] = 0
-                }
-
-                if (counts[2] >= 59 && counts[1] > 0) {
-                    counts[1] = counts[1] + 1
-                    counts[2] = 0
-                }
-
-                if (counts[0] >= 59) {
+                if (counts[0] >= 23 && counts[1] >= 59 && counts[2] >= 59) {
                     counts[0] = 0
                     counts[1] = 0
                     counts[2] = 0
                 }
 
-                counts[2]++
-                time++
+                if (counts[1] >= 59) {
+                    counts[0] = counts[0] + 1
+                    counts[1] = 0
+                }
 
-                count = "${counts[0]}:${counts[1]}:${counts[2]}"
+                if (counts[2] >= 59) {
+                    counts[1] = counts[1] + 1
+                    counts[2] = 0
+                } else {
+                    counts[2]++
+                }
+
+                var hrs = ""
+                var mts = ""
+                var scs = ""
+
+                if (counts[0] < 10) {
+                    hrs = "0"
+                }
+
+                if (counts[1] < 10) {
+                    mts = "0"
+                }
+
+                if (counts[2] < 10) {
+                    scs = "0"
+                }
+
+                hrs += counts[0]
+                mts += counts[1]
+                scs += counts[2]
+
+                count = "$hrs:$mts:$scs"
 
                 binding.times.text = count
                 mainHandler.postDelayed(this, 1000)

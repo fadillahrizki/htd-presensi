@@ -346,7 +346,7 @@ import java.io.File
     }
 
     override fun onLocationChanged(location: Location) {
-        if (location.isMock) {
+        if (location.isFromMockProvider()) {
             showAlert("Perangkat anda terdeteksi memiliki aplikasi lokasi palsu!")
             currentLocation = null
         } else {
@@ -366,7 +366,7 @@ import java.io.File
                     showAlert("Gagal mendapatkan lokasi")
                 }else{
 
-                    if (it.isMock) {
+                    if (it.isFromMockProvider()) {
                         showAlert("Perangkat anda terdeteksi memiliki aplikasi lokasi palsu!")
                         currentLocation = null
                     } else {

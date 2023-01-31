@@ -72,7 +72,7 @@ class HistoryDetailActivity : AppCompatActivity() {
 
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
 
-        supportActionBar?.title = "Detail Riwayat"
+        supportActionBar?.title = "Detail Riwayat Kehadiran"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
@@ -95,7 +95,11 @@ class HistoryDetailActivity : AppCompatActivity() {
 
     fun observe(){
         mainViewModel.historyDetail.observe(this) { data ->
-            Glide.with(this@HistoryDetailActivity).load(BASE_URL+data.pic_url).into(binding.image)
+            if (data.pic_url == null) {
+                binding.image.visibility = View.GONE
+            } else {
+                Glide.with(this@HistoryDetailActivity).load(BASE_URL+data.pic_url).into(binding.image)
+            }
             Log.d(packageName,data.toString())
 
             if(data.attachment_url != null) {
@@ -125,6 +129,12 @@ class HistoryDetailActivity : AppCompatActivity() {
 
                     startActivityForResult(Intent.createChooser(intent, "Select a file"), REQUEST_FILE_LUAR_LOKASI)
                 }
+            }
+
+            if(data.type!!.contains("Cuti")){
+                supportActionBar?.title = "Detail Riwayat Cuti"
+            } else if(data.type == "tugas luar") {
+                supportActionBar?.title = "Detail Riwayat Tugas Luar / Dalam"
             }
 
             if(data.type!!.contains("Cuti") || data.type == "tugas luar"){

@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId "com.htd.presensi"
-        minSdk 21
+        minSdk 28
         targetSdk 31
-        versionCode 6
-        versionName "1.7"
+        versionCode 9
+        versionName "1.10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

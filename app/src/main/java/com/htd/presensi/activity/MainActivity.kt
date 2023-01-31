@@ -159,7 +159,7 @@ import java.io.File
                     checkIfExists()
                 }
             }else{
-                showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+                showAlert("Maaf! Saat ini tidak ada jadwal presensi")
             }
         }
 
@@ -178,30 +178,46 @@ import java.io.File
         mainHandler.post(object : Runnable {
             override fun run() {
                 counts = count.split(':').map{it.toInt()}.toTypedArray()
-                time = counts[2]
-                time += counts[1] * 60
-                time += (counts[0] * 60) * 60
 
-                if (counts[1] >= 59 && counts[0] > 0) {
-                    counts[0] = counts[0] + 1
-                    counts[1] = 0
-                }
-
-                if (counts[2] >= 59 && counts[1] > 0) {
-                    counts[1] = counts[1] + 1
-                    counts[2] = 0
-                }
-
-                if (counts[0] >= 59) {
+                if (counts[0] >= 23 && counts[1] >= 59 && counts[2] >= 59) {
                     counts[0] = 0
                     counts[1] = 0
                     counts[2] = 0
                 }
 
-                counts[2]++
-                time++
+                if (counts[1] >= 59) {
+                    counts[0] = counts[0] + 1
+                    counts[1] = 0
+                }
 
-                count = "${counts[0]}:${counts[1]}:${counts[2]}"
+                if (counts[2] >= 59) {
+                    counts[1] = counts[1] + 1
+                    counts[2] = 0
+                } else {
+                    counts[2]++
+                }
+
+                var hrs = ""
+                var mts = ""
+                var scs = ""
+
+                if (counts[0] < 10) {
+                    hrs = "0"
+                }
+
+                if (counts[1] < 10) {
+                    mts = "0"
+                }
+
+                if (counts[2] < 10) {
+                    scs = "0"
+                }
+
+                hrs += counts[0]
+                mts += counts[1]
+                scs += counts[2]
+
+                count = "$hrs:$mts:$scs"
 
                 binding.times.text = count
                 mainHandler.postDelayed(this, 1000)
@@ -241,7 +257,7 @@ import java.io.File
                             mainViewModel.activeWorktime.postValue(worktimeItem)
 
                         }else{
-                            showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+                            showAlert("Maaf! Saat ini tidak ada jadwal presensi")
                         }
                     }
                 }else{
@@ -249,7 +265,7 @@ import java.io.File
                     try {
                         jsonObject = JSONObject(response.errorBody().string())
                         val message: String = jsonObject.getString("message")
-                        showAlert("Maaf! Sekarang sedang tidak ada jadwal absensi")
+                        showAlert("Maaf! Saat ini tidak ada jadwal presensi")
 //                        showAlert(message)
 //                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
                     } catch (e: JSONException) {
@@ -346,7 +362,12 @@ import java.io.File
     }
 
     override fun onLocationChanged(location: Location) {
-        currentLocation = location
+        if (location.isFromMockProvider()) {
+            showAlert("Perangkat anda terdeteksi memiliki aplikasi lokasi palsu!")
+            currentLocation = null
+        } else {
+            currentLocation = location
+        }
     }
 
     fun getLocation() {
@@ -360,63 +381,70 @@ import java.io.File
                 if(it == null){
                     showAlert("Gagal mendapatkan lokasi")
                 }else{
-                    currentLocation=it
-                    Log.d(packageName,currentLocation.toString())
-                    Log.d("LAT",currentLocation!!.latitude.toString())
-                    Log.d("LONG",currentLocation!!.longitude.toString())
-                    if(checkLocation()) {
-                        inLocation = true
-                        takePicture()
-                    }else{
-                        inLocation = false
-                        alertDialogBuilder.setTitle("Anda sedang di luar lokasi")
-                        alertDialogBuilder.setMessage("Apakah anda ingin melanjutkan ?")
-                        alertDialogBuilder.setNeutralButton("Lihat Lokasi"){ dialog,_->
 
-                            val alert = AlertDialog.Builder(this)
-                            alert.setTitle("Lokasi Anda")
+                    if (it.isFromMockProvider()) {
+                        showAlert("Perangkat anda terdeteksi memiliki aplikasi lokasi palsu!")
+                        currentLocation = null
+                    } else {
+                        currentLocation = it
 
-                            val wv = WebView(this)
-                            wv.settings.javaScriptEnabled = true
-                            val url = "https://maps.google.com/maps?q=${currentLocation!!.latitude},${currentLocation!!.longitude}&z=15&output=embed"
+                        Log.d(packageName,currentLocation.toString())
+                        Log.d("LAT",currentLocation!!.latitude.toString())
+                        Log.d("LONG",currentLocation!!.longitude.toString())
+                        if(checkLocation()) {
+                            inLocation = true
+                            takePicture()
+                        }else{
+                            inLocation = false
+                            alertDialogBuilder.setTitle("Anda sedang berada di luar lokasi")
+                            alertDialogBuilder.setMessage("Proses selanjutnya anda harus mengupload SPT dan memerlukan persetujuan dari admin BKD\nApakah anda ingin melanjutkan?")
+                            alertDialogBuilder.setNeutralButton("Lihat Lokasi"){ dialog,_->
 
-                            val data = "<iframe width='100%' height='400' src='$url' allowfullscreen frameborder='0' border='0' referrerpolicy='no-referrer-when-downgrade'></iframe>"
-                            wv.loadData(data, "text/html", "UTF-8")
-                            wv.webViewClient = object : WebViewClient() {
-                                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                                    view.loadUrl(url)
-                                    return true
+                                val alert = AlertDialog.Builder(this)
+                                alert.setTitle("Lokasi Saya")
+
+                                val wv = WebView(this)
+                                wv.settings.javaScriptEnabled = true
+                                val url = "https://maps.google.com/maps?q=${currentLocation!!.latitude},${currentLocation!!.longitude}&z=15&output=embed"
+
+                                val data = "<iframe width='100%' height='400' src='$url' allowfullscreen frameborder='0' border='0' referrerpolicy='no-referrer-when-downgrade'></iframe>"
+                                wv.loadData(data, "text/html", "UTF-8")
+                                wv.webViewClient = object : WebViewClient() {
+                                    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                                        view.loadUrl(url)
+                                        return true
+                                    }
                                 }
+
+                                alert.setView(wv)
+
+                                alert.setNeutralButton("Refresh") { dialog, _ ->
+                                    dialog.dismiss()
+                                    getLocation()
+                                }
+
+                                alert.setPositiveButton("Lanjut") { dialog, id ->
+                                    dialog.dismiss()
+                                    takePicture()
+                                }
+
+                                alert.setNegativeButton("Batal") { dialog, id ->
+                                    dialog.dismiss()
+                                }
+
+                                alert.show()
                             }
-
-                            alert.setView(wv)
-
-                            alert.setNeutralButton("Refresh") { dialog, _ ->
-                                dialog.dismiss()
-                                getLocation()
-                            }
-
-                            alert.setPositiveButton("Lanjut") { dialog, id ->
+                            alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
                                 dialog.dismiss()
                                 takePicture()
+        //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
                             }
-
-                            alert.setNegativeButton("Batal") { dialog, id ->
+                            alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
+        //                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
                                 dialog.dismiss()
                             }
-
-                            alert.show()
+                            alertDialogBuilder.show()
                         }
-                        alertDialogBuilder.setPositiveButton("Ya"){dialog,_->
-                            dialog.dismiss()
-                            takePicture()
-    //                        Toast.makeText(applicationContext,"Ok",Toast.LENGTH_LONG).show()
-                        }
-                        alertDialogBuilder.setNegativeButton("Tidak"){dialog,_->
-    //                        Toast.makeText(applicationContext,"No",Toast.LENGTH_LONG).show()
-                            dialog.dismiss()
-                        }
-                        alertDialogBuilder.show()
                     }
                 }
 
@@ -951,9 +979,22 @@ import java.io.File
                 if(response.code() == 200){
                     Log.d(packageName, response.body().toString())
 //                    Toast.makeText(applicationContext,"Berhasil",Toast.LENGTH_LONG).show()
-                    showAlert("Kirim Data Berhasil!")
+//                    showAlert("Kirim Data Berhasil!")
                     attachmentUri = null
                     absenTemanId = ""
+
+                    var res = Gson().toJsonTree(response.body()).asJsonObject
+                    var data = res.getAsJsonObject("data")
+                    var alert = AlertDialog.Builder(this@MainActivity)
+                    alert.setMessage("Kirim Data Berhasil!")
+                    alert.setPositiveButton("Ok"){dialog,_->
+                        dialog.dismiss()
+                        var intent = Intent(this@MainActivity, HistoryDetailActivity::class.java)
+                        intent.putExtra("employee_presence_id", data.get("id").asString)
+                        startActivity(intent)
+                    }
+                    alert.show()
+
                 }else{
                     var jsonObject: JSONObject? = null
                     try {

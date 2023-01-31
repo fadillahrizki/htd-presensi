@@ -134,7 +134,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
                         override fun onFailure(call: Call<Any>, t: Throwable) {
                             Log.d(packageName, t.toString())
-                            Toast.makeText(applicationContext,"Ada Kesalahan Server", Toast.LENGTH_LONG).show()
+                            Toast.makeText(applicationContext,"Gagal terhubung ke jaringan. Coba lagi", Toast.LENGTH_LONG).show()
                         }
                     })
                 }

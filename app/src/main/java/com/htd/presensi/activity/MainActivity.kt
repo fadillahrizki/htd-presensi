@@ -262,8 +262,8 @@ import java.io.File
 
             override fun onFailure(call: Call<Any>?, t: Throwable?) {
                 Log.d(packageName, t.toString())
-                showAlert("Ada Kesalahan Server")
-//                Toast.makeText(applicationContext,"Ada Kesalahan Server",Toast.LENGTH_LONG).show()
+                showAlert("Gagal terhubung ke jaringan. Coba lagi")
+//                Toast.makeText(applicationContext,"Gagal terhubung ke jaringan. Coba lagi",Toast.LENGTH_LONG).show()
                 loading.hide()
             }
 
@@ -489,7 +489,7 @@ import java.io.File
 
             override fun onFailure(call: Call<Any>?, t: Throwable?) {
                 Log.d(packageName, t.toString())
-                showAlert("Ada Kesalahan Server")
+                showAlert("Gagal terhubung ke jaringan. Coba lagi")
             }
         })
     }
@@ -675,7 +675,7 @@ import java.io.File
 
             override fun onFailure(call: Call<Any>?, t: Throwable?) {
                 Log.d(packageName, t.toString())
-                showAlert("Ada Kesalahan Server")
+                showAlert("Gagal terhubung ke jaringan. Coba lagi")
             }
         })
     }
@@ -971,8 +971,8 @@ import java.io.File
 
             override fun onFailure(call: Call<Any>, t: Throwable) {
                 Log.d(packageName, t.toString())
-                showAlert("Ada Kesalahan Server")
-//                Toast.makeText(applicationContext,"Ada Kesalahan Server",Toast.LENGTH_LONG).show()
+                showAlert("Gagal terhubung ke jaringan. Coba lagi")
+//                Toast.makeText(applicationContext,"Gagal terhubung ke jaringan. Coba lagi",Toast.LENGTH_LONG).show()
                 loading.hide()
             }
         })

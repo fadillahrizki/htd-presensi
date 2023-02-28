@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityLoginBinding
+import com.htd.presensi.helper.DBHelper
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import org.json.JSONException
@@ -29,12 +30,14 @@ import java.security.AccessController.getContext
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var binding: ActivityLoginBinding
     lateinit var mApiInterface: ApiInterface
+    lateinit var dbHelper: DBHelper
     var REQUEST_PERMISSIONS = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.getRoot())
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
+        dbHelper = DBHelper(this, null)
         binding.btnLogin.setOnClickListener(this)
         requestPermissions()
 
@@ -111,6 +114,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }
+
+                        dbHelper.addLog("Login dengan akun ${username} gagal")
+
                     } else {
 
                         var res = Gson().toJsonTree(response.body()).asJsonObject
@@ -135,10 +141,12 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
                         Log.d(packageName,userData.toString())
 
+                        dbHelper.addLog("Login dengan akun ${username} berhasil")
+
                         binding.cardError.setVisibility(View.GONE)
-                        val intent = Intent(applicationContext, SplashScreenActivity::class.java)
+                        val intent = Intent(applicationContext, MainActivity::class.java)
                         startActivity(intent)
-                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
                         finish()
                     }
                     binding?.btnLogin.setText("Masuk")
@@ -146,6 +154,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
                 override fun onFailure(call: Call<Any>, t: Throwable) {
                     Log.d(packageName, t.toString())
+                    dbHelper.addLog("Login dengan akun ${username} gagal")
                     Toast.makeText(applicationContext,"Gagal terhubung ke jaringan. Coba lagi",Toast.LENGTH_LONG).show()
                     binding.btnLogin.setText("Masuk")
                 }

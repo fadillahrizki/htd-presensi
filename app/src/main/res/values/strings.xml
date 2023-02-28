@@ -69,4 +69,5 @@
     <string name="ambil_foto">Ambil Foto</string>
     <string name="history_kehadiran"><![CDATA[Riwayat Kehadiran]]></string>
     <string name="masuk_pulang">Masuk / Pulang</string>
+    <string name="log">Log Aktivitas</string>
 </resources>

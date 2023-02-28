@@ -33,6 +33,7 @@ import com.google.gson.Gson
 import com.htd.presensi.BuildConfig
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityMainBinding
+import com.htd.presensi.helper.DBHelper
 import com.htd.presensi.models.WorktimeItem
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
@@ -69,6 +70,7 @@ import java.io.File
     lateinit var lampiranTugasLuarText : TextView
     lateinit var lampiranCutiText : TextView
     lateinit var cutiAdapter: ArrayAdapter<String>
+    lateinit var dbHelper : DBHelper
 
     var absenTemanId = ""
     var selectedWorktimeId = ""
@@ -128,6 +130,7 @@ import java.io.File
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.getRoot())
 
+        dbHelper = DBHelper(this, null)
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         userLoggedIn = getSharedPreferences("login_data", MODE_PRIVATE)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -358,6 +361,7 @@ import java.io.File
         binding.cuti.setOnClickListener(this)
         binding.tugasLuar.setOnClickListener(this)
         binding.sakit.setOnClickListener(this)
+        binding.log.setOnClickListener(this)
         binding.logout.setOnClickListener(this)
     }
 
@@ -764,7 +768,13 @@ import java.io.File
             binding.tugasLuar.id->{
                 openTugasLuar()
             }
+            binding.log.id->{
+                startActivity(Intent(applicationContext, LogActivity::class.java))
+                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
+                loading.dismiss()
+            }
             binding.logout.id->{
+                dbHelper.addLog("Logout dengan akun ${userLoggedIn.getString("email", null)} berhasil")
                 userLoggedIn.edit().clear().apply()
                 startActivity(Intent(applicationContext, SplashScreenActivity::class.java))
                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
@@ -995,6 +1005,12 @@ import java.io.File
                     }
                     alert.show()
 
+                    when(type){
+                        "hadir" -> dbHelper.addLog("Absen dengan akun ${userLoggedIn.getString("email", null)} berhasil")
+                        else -> dbHelper.addLog("${type.capitalize()} dengan akun ${userLoggedIn.getString("email", null)} berhasil")
+                    }
+
+
                 }else{
                     var jsonObject: JSONObject? = null
                     try {
@@ -1005,6 +1021,11 @@ import java.io.File
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
+
+                    when(type){
+                        "hadir" -> dbHelper.addLog("Absen dengan akun ${userLoggedIn.getString("email", null)} gagal")
+                        else -> dbHelper.addLog("${type.capitalize()} dengan akun ${userLoggedIn.getString("email", null)} gagal")
+                    }
                 }
                 Log.d(packageName, response.raw().toString())
                 loading.hide()
@@ -1013,6 +1034,12 @@ import java.io.File
             override fun onFailure(call: Call<Any>, t: Throwable) {
                 Log.d(packageName, t.toString())
                 showAlert("Gagal terhubung ke jaringan. Coba lagi")
+
+                when(type){
+                    "hadir" -> dbHelper.addLog("Absen dengan akun ${userLoggedIn.getString("email", null)} gagal")
+                    else -> dbHelper.addLog("${type.capitalize()} dengan akun ${userLoggedIn.getString("email", null)} gagal")
+                }
+
 //                Toast.makeText(applicationContext,"Gagal terhubung ke jaringan. Coba lagi",Toast.LENGTH_LONG).show()
                 loading.hide()
             }

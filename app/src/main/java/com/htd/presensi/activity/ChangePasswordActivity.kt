@@ -19,6 +19,7 @@ import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivityChangePasswordBinding
 import com.htd.presensi.databinding.ActivityForgotPasswordBinding
 import com.htd.presensi.databinding.ActivityLoginBinding
+import com.htd.presensi.helper.DBHelper
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import org.json.JSONException
@@ -33,6 +34,7 @@ class ChangePasswordActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var binding: ActivityChangePasswordBinding
     lateinit var mApiInterface: ApiInterface
     private lateinit var userLoggedIn: SharedPreferences
+    lateinit var dbHelper: DBHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChangePasswordBinding.inflate(layoutInflater)
@@ -40,6 +42,7 @@ class ChangePasswordActivity : AppCompatActivity(), View.OnClickListener {
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
         binding.btnSubmit.setOnClickListener(this)
         userLoggedIn = getSharedPreferences("login_data", MODE_PRIVATE)
+        dbHelper = DBHelper(this, null)
 
         supportActionBar?.title = "Ganti Password"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -99,6 +102,7 @@ class ChangePasswordActivity : AppCompatActivity(), View.OnClickListener {
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }
+                        dbHelper.addLog("Ganti Password dengan akun ${userLoggedIn.getString("email", null)} gagal")
                     } else {
                         Log.d(packageName,response.body().toString())
                         binding.cardSuccess.setVisibility(View.VISIBLE)
@@ -109,6 +113,8 @@ class ChangePasswordActivity : AppCompatActivity(), View.OnClickListener {
                         binding.cardError.setVisibility(View.GONE)
                         binding.password.editText?.setText("")
                         binding.passwordConfirmation.editText?.setText("")
+
+                        dbHelper.addLog("Ganti Password dengan akun ${userLoggedIn.getString("email", null)} berhasil")
                     }
                     binding?.btnSubmit.setText("Submit")
                 }
@@ -116,6 +122,7 @@ class ChangePasswordActivity : AppCompatActivity(), View.OnClickListener {
                 override fun onFailure(call: Call<Any>, t: Throwable) {
                     Log.d(packageName, t.toString())
                     Toast.makeText(applicationContext,"Gagal terhubung ke jaringan. Coba lagi",Toast.LENGTH_LONG).show()
+                    dbHelper.addLog("Ganti Password dengan akun ${userLoggedIn.getString("email", null)} gagal")
                     binding.btnSubmit.setText("Submit")
                 }
             })

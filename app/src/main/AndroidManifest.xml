@@ -30,11 +30,13 @@
         android:theme="@style/Theme.Presensi"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activity.LogActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.WebViewActivity"
             android:exported="false" />
 
         <receiver android:name=".services.GpsService" />
-
 
         <activity
             android:name=".activity.HistoryDetailActivity"
@@ -63,9 +65,9 @@
             android:name=".activity.ChangeEmailActivity"
             android:exported="false" />
         <activity
-            android:theme="@style/Theme.Presensi.NoActionBar"
             android:name=".activity.ForgotPasswordActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Presensi.NoActionBar" />
         <activity
             android:name=".activity.LoginActivity"
             android:exported="false"

@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.htd.presensi.R
 import com.htd.presensi.databinding.ActivitySplashScreenBinding
+import com.htd.presensi.helper.DBHelper
 import com.htd.presensi.rest.ApiClient
 import com.htd.presensi.rest.ApiInterface
 import com.htd.presensi.util.DetectConnection.checkInternetConnection
@@ -32,6 +33,7 @@ class SplashScreenActivity : AppCompatActivity() {
     private lateinit var userLoggedIn: SharedPreferences
     private lateinit var binding: ActivitySplashScreenBinding
     lateinit var mApiInterface: ApiInterface
+    lateinit var dbHelper: DBHelper
 
     fun getDeviceName(): String? {
         val manufacturer = Build.MANUFACTURER
@@ -47,7 +49,7 @@ class SplashScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashScreenBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
-
+        dbHelper = DBHelper(this, null)
         Log.d("HP", getDeviceName()!!)
         userLoggedIn = getSharedPreferences("login_data", MODE_PRIVATE)
         mApiInterface = ApiClient.client!!.create(ApiInterface::class.java)
@@ -102,6 +104,8 @@ class SplashScreenActivity : AppCompatActivity() {
                                 } catch (e: JSONException) {
                                     e.printStackTrace()
                                 }
+
+                                dbHelper.addLog("Login dengan akun ${username} gagal")
                             } else {
 
                                 var res = Gson().toJsonTree(response.body()).asJsonObject
@@ -125,6 +129,8 @@ class SplashScreenActivity : AppCompatActivity() {
 
                                 editor.apply()
 
+                                dbHelper.addLog("Login dengan akun ${username} berhasil")
+
                                 val intent = Intent(this@SplashScreenActivity, MainActivity::class.java)
                                 startActivity(intent)
                                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left)
@@ -134,6 +140,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
                         override fun onFailure(call: Call<Any>, t: Throwable) {
                             Log.d(packageName, t.toString())
+                            dbHelper.addLog("Login dengan akun ${username} gagal")
                             Toast.makeText(applicationContext,"Gagal terhubung ke jaringan. Coba lagi", Toast.LENGTH_LONG).show()
                         }
                     })

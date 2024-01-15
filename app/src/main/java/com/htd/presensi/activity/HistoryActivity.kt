@@ -135,7 +135,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
             binding.cuti.text = data.cuti
             binding.hariKerja.text = data.hari_kerja
             binding.waktuTelat.text = data.waktu_telat
-            binding.persentase.text = data.persentase
+            // binding.persentase.text = data.persentase
         }
 
         mainViewModel.paidLeaves.observe(this){data->
@@ -465,7 +465,7 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                             presence.worktimeItem = if(obj.get("worktime_item") != null) obj.get("worktime_item").asJsonObject.get("name").asString else ""
                             presence.date = SimpleDateFormat("EEEE, dd MMMM yyyy", Locale("id")).format(date)
                             presence.time = obj.get("time")?.asString
-                            presence.persentase = obj.get("presentase")?.asString
+                            // presence.persentase = obj.get("presentase")?.asString
 
                             if(obj.get("time_left") != null){
 
@@ -475,10 +475,10 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                                 // terlalu cepat
                                 if(presence.worktimeItem == "Masuk")
                                 {
-                                    time_left = "Keterlambatan "+time_left_int+" Menit ("+presence.persentase+"%)"
+                                    time_left = "Keterlambatan "+time_left_int+" Menit"
                                 }else if(presence.worktimeItem == "Pulang")
                                 {
-                                    time_left = "Sebelum Waktu "+time_left_int+" Menit ("+presence.persentase+"%)"
+                                    time_left = "Sebelum Waktu "+time_left_int+" Menit"
                                 }else{
                                     time_left = "Tepat Waktu"
                                 }
@@ -518,14 +518,14 @@ class HistoryActivity : AppCompatActivity(), View.OnClickListener,
                             report.cuti = data.get(0).asJsonObject.get("cuti").asInt.toString()
                             report.hari_kerja = data.get(0).asJsonObject.get("hari_kerja").asInt.toString()
                             report.waktu_telat = data.get(0).asJsonObject.get("time_left").asInt.toString()
-                            report.persentase = data.get(0).asJsonObject.get("presentase").asString
+                            // report.persentase = data.get(0).asJsonObject.get("presentase").asString
                         }else{
                             report.hadir = "0"
                             report.alfa = "0"
                             report.cuti = "0"
                             report.hari_kerja = "0"
                             report.waktu_telat = "0"
-                            report.persentase = "0%"
+                            // report.persentase = "0%"
                         }
                         mainViewModel.reports.postValue(report)
                         Log.d("reports",data.toString())

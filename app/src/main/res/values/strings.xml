@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">SIDAK MOBILE</string>
-    <string name="app_description">Sistem Informasi Daftar Absensi Kepegawaian Kota Tanjungbalai</string>
+    <string name="app_name">APLIKASI PRESENSI</string>
+    <string name="app_description">Sistem Aplikasi Presensi Selfie dan Lokasi</string>
+    <string name="app_moto">Solusi bisnis digital anda</string>
 
     <string name="jenis_kelamin">Jenis Kelamin</string>
     <string name="masukkan_username">Masukkan Username</string>
@@ -36,7 +37,7 @@
     <string name="jabatan">Jabatan</string>
     <string name="instansi">Instansi</string>
     <string name="golongan">Golongan</string>
-    <string name="nip">NIP</string>
+    <string name="nip">Kode Pegawai</string>
     <string name="nama">Nama</string>
     <string name="simpan">Simpan</string>
     <string name="absen_luar_lokasi">Absen Luar Lokasi</string>

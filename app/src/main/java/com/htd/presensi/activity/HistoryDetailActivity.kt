@@ -147,12 +147,12 @@ class HistoryDetailActivity : AppCompatActivity() {
                 binding.llEnd.visibility = View.VISIBLE
                 binding.llInLocation.visibility = View.GONE
                 binding.llKeterlambatan.visibility = View.GONE
-                binding.llPersentase.visibility = View.GONE
+                // binding.llPersentase.visibility = View.GONE
             }else{
                 binding.status.text = data.worktimeItem?.capitalize()
                 binding.inLocation.text = if(data.in_location!!) "Ya" else "Tidak"
                 binding.timeLeft.text = data.time_left
-                binding.persentase.text = data.persentase
+                // binding.persentase.text = data.persentase
             }
             binding.type.text = data.type?.capitalize() + " ("+data.status+")"
             binding.date.text = data.date+" ("+data.time+")"
@@ -223,7 +223,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                     }
 
                     presence.time_left = time_left
-                    presence.persentase = data.get("presentase").asString
+                    // presence.persentase = data.get("presentase").asString
                 }
 
                 mainViewModel.historyDetail.postValue(presence)
@@ -298,7 +298,7 @@ class HistoryDetailActivity : AppCompatActivity() {
                                 }
 
                                 presence.time_left = time_left
-                                presence.persentase = data.get("presentase").asString
+                                // presence.persentase = data.get("presentase").asString
                             }
 
                             mainViewModel.historyDetail.postValue(presence)
